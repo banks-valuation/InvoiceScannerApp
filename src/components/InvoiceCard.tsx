@@ -19,10 +19,9 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
 
   const formattedDate = React.useMemo(() => {
     try {
-      // Parse the date string directly to avoid timezone issues
+      // Create date in local timezone to avoid timezone offset issues
       // invoice_date is stored as YYYY-MM-DD format
-      const [year, month, day] = invoice.invoice_date.split('-').map(Number);
-      const date = new Date(year, month - 1, day); // month is 0-indexed
+      const date = new Date(invoice.invoice_date + 'T00:00:00');
       return format(date, 'MMM dd, yyyy');
     } catch (error) {
       console.error('Date formatting error:', error, 'Date value:', invoice.invoice_date);
