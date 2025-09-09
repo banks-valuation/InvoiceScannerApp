@@ -925,7 +925,6 @@ export class MicrosoftService {
       const { SettingsService } = await import('./settingsService');
       const settings = await SettingsService.getSettings();
       const excelFileName = settings.onedrive.excelFileName;
-      const excelFileName = settings.onedrive.excelFileName;
 
       // Find the Excel file
       const excelFileId = await this.findExcelFile(excelFileName);
