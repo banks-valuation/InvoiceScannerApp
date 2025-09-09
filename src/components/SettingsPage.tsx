@@ -4,7 +4,7 @@ import { AlertModal } from './Modal';
 import { useAlertModal } from '../hooks/useModal';
 import { SettingsService } from '../services/settingsService';
 import { MicrosoftService } from '../services/microsoftService';
-import { AppSettings } from '../types/settings';
+import { AppSettings, DEFAULT_SETTINGS } from '../types/settings';
 
 interface SettingsPageProps {
   onBack: () => void;

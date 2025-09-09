@@ -6,6 +6,7 @@ import { FileUpload } from './FileUpload';
 import { InvoiceFormData, Invoice } from '../types/invoice';
 import { OCRService } from '../services/ocrService';
 import { SettingsService } from '../services/settingsService';
+import { AppSettings, DEFAULT_SETTINGS } from '../types/settings';
 
 interface InvoiceFormProps {
   invoice?: Invoice | null;
