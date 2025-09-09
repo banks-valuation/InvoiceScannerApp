@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Zap } from 'lucide-react';
 import { AlertModal } from './Modal';
 import { useAlertModal } from '../hooks/useModal';
