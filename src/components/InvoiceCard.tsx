@@ -1,6 +1,8 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { FileText, Image, Trash2, Edit3, Upload, CheckCircle, AlertCircle, Cloud, RefreshCw } from 'lucide-react';
+import { AlertModal } from './Modal';
+import { useAlertModal } from '../hooks/useModal';
 import { Invoice } from '../types/invoice';
 import { InvoiceService } from '../services/invoiceService';
 import { MicrosoftService } from '../services/microsoftService';
@@ -16,6 +18,7 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
   const [isUploading, setIsUploading] = React.useState(false);
   const [isResyncing, setIsResyncing] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
+  const alertModal = useAlertModal();
 
   const formattedDate = React.useMemo(() => {
     try {
@@ -74,10 +77,20 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
       } else {
         console.error('Upload failed:', result.error);
         setUploadError(result.error || 'Upload failed');
+        alertModal.showAlert({
+          title: 'Upload Failed',
+          message: result.error || 'Failed to upload to OneDrive. Please try again.',
+          type: 'error'
+        });
       }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadError('Upload failed. Please try again.');
+      alertModal.showAlert({
+        title: 'Upload Error',
+        message: 'Upload failed. Please try again.',
+        type: 'error'
+      });
     } finally {
       setIsUploading(false);
     }
@@ -100,9 +113,19 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
         }
       } else {
         setUploadError(result.error || 'Resync failed');
+        alertModal.showAlert({
+          title: 'Resync Failed',
+          message: result.error || 'Failed to resync to Excel. Please try again.',
+          type: 'error'
+        });
       }
     } catch (error) {
       setUploadError('Resync failed. Please try again.');
+      alertModal.showAlert({
+        title: 'Resync Error',
+        message: 'Resync failed. Please try again.',
+        type: 'error'
+      });
     } finally {
       setIsResyncing(false);
     }
@@ -222,6 +245,16 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
           </div>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
+        buttonText={alertModal.config?.buttonText}
+      />
     </div>
   );
 }

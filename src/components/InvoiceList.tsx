@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, FileText, Settings, ChevronDown, ChevronRight, Calendar, DollarSign, Cloud, CheckCircle } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { InvoiceCard } from './InvoiceCard';
+import { ConfirmModal } from './Modal';
+import { useConfirmModal } from '../hooks/useModal';
 import { Invoice } from '../types/invoice';
 import { InvoiceService } from '../services/invoiceService';
 
@@ -22,6 +24,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [syncingMonths, setSyncingMonths] = useState<Set<string>>(new Set());
+  const confirmModal = useConfirmModal();
 
   useEffect(() => {
     loadInvoices();
@@ -161,20 +164,32 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this invoice?')) {
-      try {
-        // Find the invoice to get the file path for cleanup
-        const invoice = invoices.find(inv => inv.id === id);
-        if (invoice?.file_url) {
-          await InvoiceService.deleteFile(invoice.file_url);
+    const invoice = invoices.find(inv => inv.id === id);
+    
+    confirmModal.showConfirm({
+      title: 'Delete Invoice',
+      message: `Are you sure you want to delete the invoice for ${invoice?.customer_name || 'this customer'}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      type: 'error',
+      onConfirm: async () => {
+        try {
+          // Find the invoice to get the file path for cleanup
+          if (invoice?.file_url) {
+            await InvoiceService.deleteFile(invoice.file_url);
+          }
+          
+          await InvoiceService.deleteInvoice(id);
+          setInvoices(prev => prev.filter(invoice => invoice.id !== id));
+        } catch (error) {
+          console.error('Error deleting invoice:', error);
+          confirmModal.showAlert({
+            title: 'Delete Failed',
+            message: 'Failed to delete the invoice. Please try again.',
+            type: 'error'
+          });
         }
-        
-        await InvoiceService.deleteInvoice(id);
-        setInvoices(prev => prev.filter(invoice => invoice.id !== id));
-      } catch (error) {
-        console.error('Error deleting invoice:', error);
       }
-    }
+    });
   };
 
   const handleInvoiceUpdate = (updatedInvoice: Invoice) => {
@@ -192,71 +207,87 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     const unsyncedInvoices = monthInvoices.filter(invoice => !invoice.onedrive_uploaded);
     
     if (unsyncedInvoices.length === 0) {
-      alert('All invoices in this month are already synced to OneDrive.');
-      return;
-    }
-
-    const confirmMessage = `Sync ${unsyncedInvoices.length} unsynced invoices from ${getMonthName(monthKey)} to OneDrive and Excel?`;
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
-    setSyncingMonths(prev => new Set([...prev, monthKey]));
-
-    let successCount = 0;
-    let failureCount = 0;
-    const errors: string[] = [];
-
-    try {
-      // Process invoices one by one to avoid overwhelming the API
-      for (const invoice of unsyncedInvoices) {
-        try {
-          const result = await InvoiceService.uploadToOneDrive(invoice);
-          if (result.success) {
-            successCount++;
-            // Update the local state to reflect the sync
-            setInvoices(prev => prev.map(inv => 
-              inv.id === invoice.id 
-                ? { ...inv, onedrive_uploaded: true, onedrive_file_url: result.fileUrl, excel_synced: true }
-                : inv
-            ));
-          } else {
-            failureCount++;
-            errors.push(`${invoice.customer_name}: ${result.error}`);
-          }
-        } catch (error) {
-          failureCount++;
-          errors.push(`${invoice.customer_name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-        
-        // Small delay between uploads to be respectful to the API
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      // Show results
-      let message = `Sync completed!\n\n✅ Successfully synced: ${successCount} invoices`;
-      if (failureCount > 0) {
-        message += `\n❌ Failed to sync: ${failureCount} invoices`;
-        if (errors.length > 0) {
-          message += `\n\nErrors:\n${errors.slice(0, 5).join('\n')}`;
-          if (errors.length > 5) {
-            message += `\n... and ${errors.length - 5} more errors`;
-          }
-        }
-      }
-      
-      alert(message);
-    } catch (error) {
-      console.error('Batch sync error:', error);
-      alert(`Batch sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setSyncingMonths(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(monthKey);
-        return newSet;
+      confirmModal.showAlert({
+        title: 'Already Synced',
+        message: 'All invoices in this month are already synced to OneDrive.',
+        type: 'info'
       });
+      return;
     }
+
+    confirmModal.showConfirm({
+      title: 'Sync to OneDrive',
+      message: `Sync ${unsyncedInvoices.length} unsynced invoices from ${getMonthName(monthKey)} to OneDrive and Excel?`,
+      confirmText: 'Sync All',
+      type: 'info',
+      onConfirm: async () => {
+        setSyncingMonths(prev => new Set([...prev, monthKey]));
+
+        let successCount = 0;
+        let failureCount = 0;
+        const errors: string[] = [];
+
+        try {
+          // Process invoices one by one to avoid overwhelming the API
+          for (const invoice of unsyncedInvoices) {
+            try {
+              const result = await InvoiceService.uploadToOneDrive(invoice);
+              if (result.success) {
+                successCount++;
+                // Update the local state to reflect the sync
+                setInvoices(prev => prev.map(inv => 
+                  inv.id === invoice.id 
+                    ? { ...inv, onedrive_uploaded: true, onedrive_file_url: result.fileUrl, excel_synced: true }
+                    : inv
+                ));
+              } else {
+                failureCount++;
+                errors.push(`${invoice.customer_name}: ${result.error}`);
+              }
+            } catch (error) {
+              failureCount++;
+              errors.push(`${invoice.customer_name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+            
+            // Small delay between uploads to be respectful to the API
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+
+          // Show results
+          let message = `Successfully synced: ${successCount} invoices`;
+          if (failureCount > 0) {
+            message += `\nFailed to sync: ${failureCount} invoices`;
+            if (errors.length > 0) {
+              message += `\n\nErrors:\n${errors.slice(0, 3).join('\n')}`;
+              if (errors.length > 3) {
+                message += `\n... and ${errors.length - 3} more errors`;
+              }
+            }
+          }
+          
+          confirmModal.showAlert({
+            title: 'Sync Complete',
+            message,
+            type: failureCount > 0 ? 'warning' : 'success'
+          });
+        } catch (error) {
+          console.error('Batch sync error:', error);
+          confirmModal.showAlert({
+            title: 'Sync Failed',
+            message: `Batch sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            type: 'error'
+          });
+        } finally {
+          setSyncingMonths(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(monthKey);
+            return newSet;
+          });
+        }
+      }
+    });
   };
+
   const getTotalAmount = () => {
     return filteredInvoices.reduce((sum, invoice) => sum + invoice.invoice_amount, 0);
   };
@@ -501,6 +532,19 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
 
       {/* Add bottom padding to prevent content from being hidden behind fixed buttons */}
       <div className="h-20"></div>
+
+      {/* Modals */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.config?.title || ''}
+        message={confirmModal.config?.message || ''}
+        confirmText={confirmModal.config?.confirmText}
+        cancelText={confirmModal.config?.cancelText}
+        type={confirmModal.config?.type}
+        isLoading={confirmModal.isLoading}
+      />
     </div>
   );
 }

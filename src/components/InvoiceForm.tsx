@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Save, ArrowLeft, Zap } from 'lucide-react';
+import { AlertModal } from './Modal';
+import { useAlertModal } from '../hooks/useModal';
 import { FileUpload } from './FileUpload';
 import { InvoiceFormData, Invoice } from '../types/invoice';
 import { OCRService } from '../services/ocrService';
@@ -36,6 +38,7 @@ export function InvoiceForm({ invoice, onSubmit, onCancel, isLoading }: InvoiceF
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionStatus, setExtractionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const alertModal = useAlertModal();
 
   // Load settings on component mount
   useEffect(() => {
@@ -91,10 +94,19 @@ export function InvoiceForm({ invoice, onSubmit, onCancel, isLoading }: InvoiceF
     
     if (!validateForm()) return;
     
-    await onSubmit({
-      ...formData,
-      file: selectedFile || undefined,
-    });
+    try {
+      await onSubmit({
+        ...formData,
+        file: selectedFile || undefined,
+      });
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+      alertModal.showAlert({
+        title: 'Save Failed',
+        message: 'Error saving invoice. Please try again.',
+        type: 'error'
+      });
+    }
   };
 
   const handleInputChange = (field: keyof InvoiceFormData, value: string) => {
@@ -343,6 +355,16 @@ export function InvoiceForm({ invoice, onSubmit, onCancel, isLoading }: InvoiceF
           </form>
         </div>
       </div>
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
+        buttonText={alertModal.config?.buttonText}
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { AuthProvider } from './components/AuthProvider';
 import { InvoiceList } from './components/InvoiceList';
 import { InvoiceForm } from './components/InvoiceForm';
 import { SettingsPage } from './components/SettingsPage';
+import { AlertModal } from './components/Modal';
+import { useAlertModal } from './hooks/useModal';
 import { InvoiceService } from './services/invoiceService';
 import { InvoiceFormData, Invoice } from './types/invoice';
 
@@ -12,6 +14,7 @@ function App() {
   const [currentView, setCurrentView] = useState<AppView>('list');
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const alertModal = useAlertModal();
 
   const handleAddInvoice = () => {
     setEditingInvoice(null);
@@ -65,7 +68,11 @@ function App() {
       setCurrentView('list');
     } catch (error) {
       console.error('Error saving invoice:', error);
-      alert('Error saving invoice. Please try again.');
+      alertModal.showAlert({
+        title: 'Save Failed',
+        message: 'Error saving invoice. Please try again.',
+        type: 'error'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -77,6 +84,7 @@ function App() {
         currentView={currentView}
         editingInvoice={editingInvoice}
         isSubmitting={isSubmitting}
+        alertModal={alertModal}
         onAddInvoice={handleAddInvoice}
         onEditInvoice={handleEditInvoice}
         onShowSettings={handleShowSettings}
@@ -91,6 +99,7 @@ interface AppContentProps {
   currentView: AppView;
   editingInvoice: Invoice | null;
   isSubmitting: boolean;
+  alertModal: ReturnType<typeof useAlertModal>;
   onAddInvoice: () => void;
   onEditInvoice: (invoice: Invoice) => void;
   onShowSettings: () => void;
@@ -102,6 +111,7 @@ function AppContent({
   currentView,
   editingInvoice,
   isSubmitting,
+  alertModal,
   onAddInvoice,
   onEditInvoice,
   onShowSettings,
@@ -124,11 +134,23 @@ function AppContent({
   }
 
   return (
-    <InvoiceList 
-      onAddInvoice={onAddInvoice} 
-      onEditInvoice={onEditInvoice}
-      onShowSettings={onShowSettings}
-    />
+    <>
+      <InvoiceList 
+        onAddInvoice={onAddInvoice} 
+        onEditInvoice={onEditInvoice}
+        onShowSettings={onShowSettings}
+      />
+      
+      {/* Global Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
+        buttonText={alertModal.config?.buttonText}
+      />
+    </>
   );
 }
 

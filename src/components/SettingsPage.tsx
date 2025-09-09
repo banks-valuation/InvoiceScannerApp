@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Folder, FileSpreadsheet, Settings as SettingsIcon, RefreshCw, CheckCircle, AlertCircle, FolderOpen, ChevronRight, ChevronDown, X, ChevronLeft } from 'lucide-react';
+import { AlertModal } from './Modal';
+import { useAlertModal } from '../hooks/useModal';
 import { SettingsService } from '../services/settingsService';
 import { MicrosoftService } from '../services/microsoftService';
 import { AppSettings } from '../types/settings';
@@ -21,6 +23,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   const [availableFolders, setAvailableFolders] = useState<Array<{ name: string; path: string; isFolder: boolean }>>([]);
   const [isLoadingFolders, setIsLoadingFolders] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const alertModal = useAlertModal();
 
   useEffect(() => {
     // Load settings from database
@@ -89,7 +92,11 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
       MicrosoftService.initiateLogin();
     } catch (error) {
       console.error('Authentication failed:', error);
-      alert('Authentication failed. Please try again.');
+      alertModal.showAlert({
+        title: 'Authentication Failed',
+        message: 'Authentication failed. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -109,7 +116,11 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
       setAvailableFiles(files);
     } catch (error) {
       console.error('Failed to load Excel files:', error);
-      alert('Failed to load Excel files. Please check your connection.');
+      alertModal.showAlert({
+        title: 'Load Failed',
+        message: 'Failed to load Excel files. Please check your connection.',
+        type: 'error'
+      });
     } finally {
       setIsLoadingFiles(false);
     }
@@ -127,7 +138,11 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
       setFolderBrowserPath(path);
     } catch (error) {
       console.error('Failed to load folders:', error);
-      alert(`Failed to load folders: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and permissions.`);
+      alertModal.showAlert({
+        title: 'Load Failed',
+        message: `Failed to load folders: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and permissions.`,
+        type: 'error'
+      });
     } finally {
       setIsLoadingFolders(false);
     }
@@ -497,6 +512,16 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
           </div>
         </div>
       )}
+
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
+        buttonText={alertModal.config?.buttonText}
+      />
     </div>
   );
 }
