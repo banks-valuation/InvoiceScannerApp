@@ -22,7 +22,7 @@ const DESCRIPTION_OPTIONS = [
 ] as const;
 
 export function InvoiceForm({ invoice, onSubmit, onCancel, isLoading }: InvoiceFormProps) {
-  const settings = SettingsService.getSettings();
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   
   const [formData, setFormData] = useState<InvoiceFormData>({
     customer_name: invoice?.customer_name || '',
@@ -36,6 +36,28 @@ export function InvoiceForm({ invoice, onSubmit, onCancel, isLoading }: InvoiceF
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionStatus, setExtractionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // Load settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const loadedSettings = await SettingsService.getSettings();
+        setSettings(loadedSettings);
+        
+        // Update form data with loaded default category if this is a new invoice
+        if (!invoice) {
+          setFormData(prev => ({
+            ...prev,
+            description_category: loadedSettings.general.defaultCategory,
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    };
+
+    loadSettings();
+  }, [invoice]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};

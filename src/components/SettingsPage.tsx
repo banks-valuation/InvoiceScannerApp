@@ -9,8 +9,9 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ onBack }: SettingsPageProps) {
-  const [settings, setSettings] = useState<AppSettings>(SettingsService.getSettings());
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [availableFiles, setAvailableFiles] = useState<Array<{ name: string; path: string }>>([]);
@@ -22,6 +23,20 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    // Load settings from database
+    const loadSettings = async () => {
+      try {
+        const loadedSettings = await SettingsService.getSettings();
+        setSettings(loadedSettings);
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+
+    loadSettings();
+
     // Check authentication status when component mounts and periodically
     const checkAuth = () => {
       const authStatus = MicrosoftService.isAuthenticated();
@@ -58,7 +73,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   const handleSave = async () => {
     setSaveStatus('saving');
     try {
-      SettingsService.saveSettings(settings);
+      await SettingsService.saveSettings(settings);
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {
@@ -166,6 +181,18 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
         );
     }
   };
+
+  // Show loading state while settings are being loaded
+  if (isLoadingSettings) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

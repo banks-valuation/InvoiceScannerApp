@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
 import { AuthModal } from './AuthModal';
+import { SettingsService } from '../services/settingsService';
 
 interface AuthContextType {
   user: User | null;
@@ -59,6 +60,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signOut = async () => {
+    // Clear settings cache when signing out
+    SettingsService.clearCache();
     await supabase.auth.signOut();
   };
 

@@ -215,8 +215,9 @@ export class MicrosoftService {
       }
 
       // Get settings for directory configuration
-      const settings = JSON.parse(localStorage.getItem('app_settings') || '{}');
-      const invoiceDirectory = settings.onedrive?.invoiceDirectory || 'Invoices';
+      const { SettingsService } = await import('./settingsService');
+      const settings = await SettingsService.getSettings();
+      const invoiceDirectory = settings.onedrive.invoiceDirectory;
 
       // Create filename with invoice details (same pattern as display name)
       const sanitizedCustomerName = invoice.customer_name.replace(/[^a-zA-Z0-9]/g, '');
@@ -921,8 +922,10 @@ export class MicrosoftService {
       }
 
       // Get settings for Excel file configuration
-      const settings = JSON.parse(localStorage.getItem('app_settings') || '{}');
-      const excelFileName = settings.onedrive?.excelFileName || 'Invoice_Tracker.xlsx';
+      const { SettingsService } = await import('./settingsService');
+      const settings = await SettingsService.getSettings();
+      const excelFileName = settings.onedrive.excelFileName;
+      const excelFileName = settings.onedrive.excelFileName;
 
       // Find the Excel file
       const excelFileId = await this.findExcelFile(excelFileName);

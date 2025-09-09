@@ -9,6 +9,7 @@ export interface AppSettings {
     autoExtractOCR: boolean;
   };
 }
+import { AppSettings } from './settings';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   onedrive: {
