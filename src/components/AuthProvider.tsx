@@ -33,16 +33,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      // Show auth modal if no session
-      if (!session) {
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Show auth modal if no session
+        if (!session) {
+          setShowAuthModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to get initial session:', error);
+        // Handle invalid session by setting logged-out state
+        setSession(null);
+        setUser(null);
+        setLoading(false);
         setShowAuthModal(true);
-      }
-    });
+      });
 
     // Listen for auth changes
     const {
