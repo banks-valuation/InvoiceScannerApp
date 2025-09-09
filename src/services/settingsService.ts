@@ -20,9 +20,9 @@ export class SettingsService {
         .from('user_settings')
         .select('settings')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (error) {
         console.error('Error fetching settings from database:', error);
         // Fall back to localStorage on error
         return this.getLocalSettings();
