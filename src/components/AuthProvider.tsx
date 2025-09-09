@@ -62,7 +62,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     // Clear settings cache when signing out
     SettingsService.clearCache();
-    await supabase.auth.signOut();
+    
+    try {
+      await supabase.auth.signOut();
+    } catch (error: any) {
+      // Handle case where session doesn't exist on server
+      if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
+        // Manually update local state to reflect logged-out state
+        setSession(null);
+        setUser(null);
+        setShowAuthModal(true);
+      } else {
+        // Re-throw other errors
+        throw error;
+      }
+    }
   };
 
   const value = {
