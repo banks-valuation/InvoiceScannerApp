@@ -385,13 +385,16 @@ export class MicrosoftService {
       const fileName = this.createDisplayFileName(invoiceData);
 
       // Prepare the row data
+      const fileName = this.createDisplayFileName(invoiceData);
       const rowData = [
         invoiceData.sequence_id || 0,
         invoiceData.customer_name,
         invoiceData.invoice_date,
         invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
         invoiceData.invoice_amount,
-        invoiceData.onedrive_file_url,        
+        '', // Column F will be filled with HYPERLINK formula
+        fileName, // Column G: Filename
+        invoiceData.onedrive_file_url || '', // Column H: Plain URL
       ];
       
 
@@ -451,7 +454,7 @@ export class MicrosoftService {
     while (attempt < maxRetries) {
       try {
         console.log('Attempting to append Excel row for invoice:', excelFileId, rowData);
-
+        // Create empty Excel file with 8 columns (A-H)
         const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows`, {
           method: 'POST',
           headers: {
@@ -465,6 +468,10 @@ export class MicrosoftService {
 
         if (response.ok) {
           console.log('Successfully appended to Excel table');
+          
+          // After successful append, add HYPERLINK formula to column F
+          await this.addHyperlinkFormula(excelFileId, rowData);
+          
           return; // Success, exit retry loop
         }
 
@@ -480,6 +487,10 @@ export class MicrosoftService {
         
         // For other errors, fallback to direct worksheet append
         await this.appendToWorksheetDirectly(excelFileId, rowData);
+        
+        // After successful fallback append, add HYPERLINK formula
+        await this.addHyperlinkFormula(excelFileId, rowData);
+        
         return; // Success via fallback
         
       } catch (tableError) {
@@ -750,7 +761,7 @@ export class MicrosoftService {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              address: "A1:F1",
+              address: "A1:H1",
               hasHeaders: true,
               name: "Table1"
             }),
@@ -778,7 +789,9 @@ export class MicrosoftService {
                 "Invoice Date",
                 "Description",
                 "Amount",
-                "OneDrive Link"
+                "File Link",
+                "Filename",
+                "URL"
               ]]
             }),
           }
@@ -885,6 +898,48 @@ export class MicrosoftService {
       }
     } catch (error) {
       throw error;
+    }
+  }
+
+  // Add HYPERLINK formula to column F after row is added
+  private static async addHyperlinkFormula(excelFileId: string, rowData: any[]): Promise<void> {
+    try {
+      // Get the current table size to determine the row number
+      const tableResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows`, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!tableResponse.ok) {
+        console.warn('Could not get table size for HYPERLINK formula');
+        return;
+      }
+
+      const tableData = await tableResponse.json();
+      const rowCount = tableData.value.length;
+      const targetRow = rowCount + 1; // +1 because table starts at row 2 (row 1 is headers)
+
+      // Add HYPERLINK formula to column F
+      const formulaResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/worksheets/Sheet1/range(address='F${targetRow}')`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formulas: [[`=HYPERLINK(H${targetRow},G${targetRow})`]]
+        }),
+      });
+
+      if (!formulaResponse.ok) {
+        const errorText = await formulaResponse.text();
+        console.warn('Failed to add HYPERLINK formula:', errorText);
+      } else {
+        console.log('Successfully added HYPERLINK formula to column F');
+      }
+    } catch (error) {
+      console.warn('Error adding HYPERLINK formula:', error);
     }
   }
 
