@@ -866,7 +866,7 @@ export class MicrosoftService {
       }
 
       // Append to the next available row
-      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:F${nextRow}')`, {
+      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:H${nextRow}')`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
