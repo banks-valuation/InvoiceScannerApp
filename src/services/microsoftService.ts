@@ -449,14 +449,14 @@ export class MicrosoftService {
 
     while (attempt < maxRetries) {
       try {
-        const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/add`, {
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            values: [rowData],
+            values: [rowData]
           }),
         });
 
@@ -590,15 +590,14 @@ export class MicrosoftService {
       }
 
       // Update the matching row
-      const rowId = rows[matchingRowIndex].index;
-      const updateResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${rowId})`, {
+      const updateResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${matchingRowIndex})`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          values: [rowData],
+          values: [rowData]
         }),
       });
 
@@ -1029,8 +1028,7 @@ export class MicrosoftService {
       }
 
       // Delete the matching row
-      const rowId = rows[matchingRowIndex].index;
-      const deleteResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${rowId})`, {
+      const deleteResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${matchingRowIndex})`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
