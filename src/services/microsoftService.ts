@@ -433,6 +433,12 @@ export class MicrosoftService {
     }
   }
 
+  // Helper method to get the next row number for HYPERLINK formula
+  private static getNextRowNumber(): string {
+    // This will be dynamically calculated when we know the actual row position
+    return 'ROW()';
+  }
+
   // Create a meaningful display filename for Excel
   private static createDisplayFileName(invoiceData: any): string {
     // Use the original filename pattern that was used during upload
@@ -457,10 +463,8 @@ export class MicrosoftService {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'Content-Type': 'application/json',
-              "Amount",
-              "OneDrive Link",
-              "Filename",
-              "URL"
+          },
+          body: JSON.stringify({
             values: [rowData]
           }),
         });
@@ -663,10 +667,10 @@ export class MicrosoftService {
       }),
     });
 
-  if (!createResponse.ok) {
-    const errorText = await createResponse.text();
-    throw new Error(`Failed to create Excel file: ${errorText}`);
-  }
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      throw new Error(`Failed to create Excel file: ${errorText}`);
+    }
 
     const fileData = await createResponse.json();
     const fileId = fileData.id;
@@ -868,7 +872,7 @@ export class MicrosoftService {
       }
 
       // Append to the next available row
-      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:H${nextRow}')`, {
+      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:F${nextRow}')`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
