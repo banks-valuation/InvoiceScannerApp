@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, FileText, Settings, ChevronDown, ChevronRight, Calendar, DollarSign, Cloud, CheckCircle } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { InvoiceCard } from './InvoiceCard';
-import { ConfirmModal } from './Modal';
-import { useConfirmModal } from '../hooks/useModal';
+import { ConfirmModal, AlertModal } from './Modal';
+import { useConfirmModal, useAlertModal } from '../hooks/useModal';
 import { Invoice } from '../types/invoice';
 import { InvoiceService } from '../services/invoiceService';
 
@@ -25,6 +25,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   const [isLoading, setIsLoading] = useState(true);
   const [syncingMonths, setSyncingMonths] = useState<Set<string>>(new Set());
   const confirmModal = useConfirmModal();
+  const alertModal = useAlertModal();
 
   useEffect(() => {
     loadInvoices();
@@ -182,7 +183,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
           setInvoices(prev => prev.filter(invoice => invoice.id !== id));
         } catch (error) {
           console.error('Error deleting invoice:', error);
-          confirmModal.showAlert({
+          alertModal.showAlert({
             title: 'Delete Failed',
             message: 'Failed to delete the invoice. Please try again.',
             type: 'error'
@@ -207,7 +208,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     const unsyncedInvoices = monthInvoices.filter(invoice => !invoice.onedrive_uploaded);
     
     if (unsyncedInvoices.length === 0) {
-      confirmModal.showAlert({
+      alertModal.showAlert({
         title: 'Already Synced',
         message: 'All invoices in this month are already synced to OneDrive.',
         type: 'info'
@@ -265,14 +266,14 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
             }
           }
           
-          confirmModal.showAlert({
+          alertModal.showAlert({
             title: 'Sync Complete',
             message,
             type: failureCount > 0 ? 'warning' : 'success'
           });
         } catch (error) {
           console.error('Batch sync error:', error);
-          confirmModal.showAlert({
+          alertModal.showAlert({
             title: 'Sync Failed',
             message: `Batch sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
             type: 'error'
@@ -544,6 +545,14 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
         cancelText={confirmModal.config?.cancelText}
         type={confirmModal.config?.type}
         isLoading={confirmModal.isLoading}
+      />
+
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
       />
     </div>
   );

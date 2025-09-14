@@ -192,8 +192,10 @@ export class MicrosoftService {
       }
     }
 
-    // Need to re-authenticate
-    return false;
+    // Need to re-authenticate - redirect to login
+    console.log('Token expired or missing, initiating re-authentication');
+    this.initiateLogin();
+    throw new Error('Authentication required - redirecting to Microsoft login');
   }
 
   // Upload invoice file to OneDrive
