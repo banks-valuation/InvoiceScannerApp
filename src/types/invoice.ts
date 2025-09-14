@@ -1,6 +1,6 @@
 export interface Invoice {
   id: string;
-  sequence_id?: number; // Auto-incrementing ID for Excel tracking
+  sequence_id: number; // Auto-incrementing ID for Excel tracking
   customer_name: string;
   invoice_date: string;
   invoice_amount: number;

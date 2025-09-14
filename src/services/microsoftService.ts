@@ -388,7 +388,7 @@ export class MicrosoftService {
 
       // Prepare the row data
       const rowData = [
-        invoiceData.id || invoiceData.sequence_id || new Date().getTime(), // ID column - use UUID or timestamp
+        invoiceData.sequence_id, // Use the auto-incrementing sequence_id
         invoiceData.customer_name,
         invoiceData.invoice_date,
         invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
