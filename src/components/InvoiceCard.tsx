@@ -17,6 +17,7 @@ interface InvoiceCardProps {
 export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: InvoiceCardProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const [isResyncing, setIsResyncing] = React.useState(false);
+  const [isMicrosoftConnected, setIsMicrosoftConnected] = React.useState(MicrosoftService.isAuthenticated());
   const [uploadError, setUploadError] = React.useState<string | null>(null);
   const alertModal = useAlertModal();
 
@@ -172,13 +173,19 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
               {!invoice.onedrive_uploaded && (
                 <button
                   onClick={handleOneDriveUpload}
-                  disabled={isUploading}
+                  disabled={isUploading || !isMicrosoftConnected}
                   className={`p-2 rounded-lg transition-colors ${
-                    isUploading 
+                    isUploading || !isMicrosoftConnected
                       ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
                       : 'text-blue-500 hover:bg-blue-50'
                   }`}
-                  title={isUploading ? 'Uploading to OneDrive...' : 'Upload to OneDrive'}
+                  title={
+                    !isMicrosoftConnected 
+                      ? 'Please connect to Microsoft OneDrive first' 
+                      : isUploading 
+                        ? 'Uploading to OneDrive...' 
+                        : 'Upload to OneDrive'
+                  }
                 >
                   {isUploading ? (
                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -190,13 +197,19 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
               {invoice.onedrive_uploaded && (
                 <button
                   onClick={handleExcelResync}
-                  disabled={isResyncing}
+                  disabled={isResyncing || !isMicrosoftConnected}
                   className={`p-2 rounded-lg transition-colors ${
-                    isResyncing 
+                    isResyncing || !isMicrosoftConnected
                       ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
                       : 'text-emerald-500 hover:bg-emerald-50'
                   }`}
-                  title={isResyncing ? 'Resyncing to Excel...' : 'Resync to Excel'}
+                  title={
+                    !isMicrosoftConnected 
+                      ? 'Please connect to Microsoft OneDrive first' 
+                      : isResyncing 
+                        ? 'Resyncing to Excel...' 
+                        : 'Resync to Excel'
+                  }
                 >
                   {isResyncing ? (
                     <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />

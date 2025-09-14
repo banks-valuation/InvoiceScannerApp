@@ -366,7 +366,7 @@ export class MicrosoftService {
   private static async syncToExcel(invoiceData: any, operation: 'append' | 'update'): Promise<void> {
     const hasValidToken = await this.ensureValidToken();
     if (!hasValidToken) {
-      throw new Error('Authentication required');
+      throw new Error('Authentication required. Please connect to Microsoft OneDrive first.');
     }
 
     // Get settings for Excel file configuration
