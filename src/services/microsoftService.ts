@@ -284,6 +284,47 @@ export class MicrosoftService {
     }
   }
 
+private static async updateExistingRow(
+  fileId: string,
+  tableName: string,
+  invoice: any,
+  rowIndex: number
+): Promise<void> {
+  // Format date for Excel: YYYY-MMM-DD
+  const formattedDate = invoice.date
+    ? new Date(invoice.date).toISOString().split("T")[0]
+    : "";
+
+  // Build row values
+  const rowValues = [
+    invoice.number || "",
+    invoice.customerName || "",
+    formattedDate,
+    invoice.amount?.toFixed(2) || "0.00",
+    invoice.fileName || "",  // filename instead of URL
+    invoice.status || ""
+  ];
+
+  const response = await fetch(
+    `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/tables/${tableName}/rows/itemAt(index=${rowIndex})`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        values: [rowValues],
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to update row: ${await response.text()}`);
+  }
+}
+  
+
   private static createDisplayFileName(invoiceData: any): string {
     const sanitizedCustomerName = invoiceData.customer_name.replace(/[^a-zA-Z0-9]/g, '');
     const fileExtension = invoiceData.file_type === 'pdf' ? 'pdf' : 'jpg';
