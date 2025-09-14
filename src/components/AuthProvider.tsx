@@ -56,10 +56,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Clear settings cache and reload when user signs in
+      if (event === 'SIGNED_IN' && session?.user) {
+        SettingsService.clearCache();
+        try {
+          // Preload settings from database to sync with other devices
+          await SettingsService.getSettings();
+        } catch (error) {
+          console.error('Failed to reload settings after login:', error);
+        }
+      }
       
       // Show/hide auth modal based on session
       setShowAuthModal(!session);
