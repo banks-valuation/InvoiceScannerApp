@@ -19,7 +19,7 @@ export class SupabaseInvoiceService {
       // Insert invoice into database
       const { data, error } = await supabase
         .from('invoices')
-        .insert({
+        .insert([{
           customer_name: formData.customer_name,
           invoice_date: formData.invoice_date,
           invoice_amount: parseFloat(formData.invoice_amount),
@@ -27,7 +27,7 @@ export class SupabaseInvoiceService {
           description_other: formData.description_other,
           file_url: fileUrl,
           file_type: fileType,
-        })
+        }])
         .select()
         .single();
 
