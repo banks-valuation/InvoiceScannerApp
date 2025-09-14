@@ -50,23 +50,9 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
       }
     };
 
-    // Add timeout for loading settings
-    const timeoutId = setTimeout(() => {
-      if (isLoadingSettings) {
-        console.warn('Settings loading timed out');
-        setSettings(DEFAULT_SETTINGS);
-        setIsLoadingSettings(false);
-        alertModal.showAlert({
-          title: 'Loading Timeout',
-          message: 'Settings loading took too long. Using default settings.',
-          type: 'warning'
-        });
-      }
-    }, 10000);
 
     loadSettings();
     
-    return () => clearTimeout(timeoutId);
 
     // Check authentication status when component mounts and periodically
     const checkAuth = () => {
