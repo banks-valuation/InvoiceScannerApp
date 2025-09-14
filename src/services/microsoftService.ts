@@ -457,8 +457,10 @@ export class MicrosoftService {
           headers: {
             'Authorization': `Bearer ${this.accessToken}`,
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+              "Amount",
+              "OneDrive Link",
+              "Filename",
+              "URL"
             values: [rowData]
           }),
         });
