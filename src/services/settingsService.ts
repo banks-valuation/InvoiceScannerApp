@@ -16,13 +16,21 @@ export class SettingsService {
       
       // Only check authentication if user not provided
       if (!currentUser) {
-        const authPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Authentication check timeout')), 10000)
+        const authPromise = supabase.auth.getUser().then(result => ({ result, timeout: false }));
+        const authTimeoutPromise = new Promise(resolve => 
+          setTimeout(() => resolve({ timeout: true }), 10000)
         );
         
-        const { data: { user: authUser } } = await Promise.race([authPromise, timeoutPromise]) as any;
-        currentUser = authUser;
+        const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
+        
+        if (authResult.timeout) {
+          console.warn('Authentication check timed out, falling back to localStorage');
+          const localSettings = this.getLocalSettings();
+          this.cachedSettings = localSettings;
+          return localSettings;
+        }
+        
+        currentUser = authResult.result.data.user;
       }
       
       if (!currentUser) {
@@ -37,13 +45,23 @@ export class SettingsService {
         .from('user_settings')
         .select('settings')
         .eq('user_id', currentUser.id)
-        .maybeSingle();
+        .maybeSingle()
+        .then(result => ({ result, timeout: false }));
       
-      const dbTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout')), 15000)
+      const dbTimeoutPromise = new Promise(resolve => 
+        setTimeout(() => resolve({ timeout: true }), 15000)
       );
       
-      const { data, error } = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
+      const dbResult = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
+      
+      if (dbResult.timeout) {
+        console.warn('Database query timed out, falling back to localStorage');
+        const localSettings = this.getLocalSettings();
+        this.cachedSettings = localSettings;
+        return localSettings;
+      }
+      
+      const { data, error } = dbResult.result;
 
       if (error) {
         console.error('Error fetching settings from database:', error);
