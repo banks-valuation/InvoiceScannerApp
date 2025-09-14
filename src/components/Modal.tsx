@@ -165,19 +165,64 @@ export function AlertModal({
     }
   };
 
+  const getGradientColor = () => {
+    switch (type) {
+      case 'error':
+        return 'from-red-500 to-red-600';
+      case 'warning':
+        return 'from-amber-500 to-amber-600';
+      case 'success':
+        return 'from-green-500 to-green-600';
+      default:
+        return 'from-blue-500 to-blue-600';
+    }
+  };
+
+  const getIconBgColor = () => {
+    switch (type) {
+      case 'error':
+        return 'bg-red-100';
+      case 'warning':
+        return 'bg-amber-100';
+      case 'success':
+        return 'bg-green-100';
+      default:
+        return 'bg-blue-100';
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} type={type}>
-      <div className="space-y-4">
-        <p className="text-gray-600">{message}</p>
-        <div className="flex justify-end">
-          <button
-            onClick={onClose}
-            className={`px-4 py-2 text-white rounded-lg transition-colors ${getButtonColor()}`}
-          >
-            {buttonText}
-          </button>
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+        {/* Header with gradient background */}
+        <div className={`bg-gradient-to-r ${getGradientColor()} px-6 py-8 text-center`}>
+          <div className={`w-16 h-16 ${getIconBgColor()} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+            {type === 'success' && <CheckCircle className="w-8 h-8 text-green-600" />}
+            {type === 'error' && <AlertCircle className="w-8 h-8 text-red-600" />}
+            {type === 'warning' && <AlertTriangle className="w-8 h-8 text-amber-600" />}
+            {type === 'info' && <Info className="w-8 h-8 text-blue-600" />}
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-6">
+          <p className="text-gray-700 text-center leading-relaxed mb-6 whitespace-pre-line">
+            {message}
+          </p>
+          
+          <div className="flex justify-center">
+            <button
+              onClick={onClose}
+              className={`px-8 py-3 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl ${getButtonColor()}`}
+            >
+              {buttonText}
+            </button>
+          </div>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }
