@@ -591,9 +591,8 @@ export class MicrosoftService {
         return false;
       }
 
-      // Update the matching row
-      const rowId = rows[matchingRowIndex].index;
-      const updateResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${rowId})`, {
+      // Update the matching row using the correct row index
+      const updateResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${matchingRowIndex})`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
@@ -1016,9 +1015,8 @@ export class MicrosoftService {
         return true; // Consider it successful if row doesn't exist
       }
 
-      // Delete the matching row
-      const rowId = rows[matchingRowIndex].index;
-      const deleteResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${rowId})`, {
+      // Delete the matching row using the correct row index
+      const deleteResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows/itemAt(index=${matchingRowIndex})`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
