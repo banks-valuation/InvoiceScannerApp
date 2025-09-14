@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MicrosoftService } from '../services/microsoftService';
+import { AlertModal } from './Modal';
+import { useAlertModal } from '../hooks/useModal';
 
 export function AuthCallback() {
   const navigate = useNavigate();
+  const alertModal = useAlertModal();
   
   useEffect(() => {
     const handleCallback = async () => {
@@ -19,7 +22,11 @@ export function AuthCallback() {
       console.log('URL params:', { accessToken: accessToken ? 'present' : 'missing', error, errorDescription });
       if (error) {
         console.error('Authentication error:', error, errorDescription);
-        alert(`Authentication failed: ${error}\n${errorDescription || ''}`);
+        alertModal.showAlert({
+          title: 'Authentication Failed',
+          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}`,
+          type: 'error'
+        });
         navigate('/');
         return;
       }
@@ -29,11 +36,19 @@ export function AuthCallback() {
           console.log('Processing access token...');
           await MicrosoftService.handleImplicitCallback(accessToken, urlParams);
           console.log('Authentication successful!');
-          alert('Successfully connected to Microsoft OneDrive!');
+          alertModal.showAlert({
+            title: 'Connection Successful',
+            message: 'Successfully connected to Microsoft OneDrive! You can now upload invoices to OneDrive and sync them to Excel.',
+            type: 'success'
+          });
           navigate('/');
         } catch (error) {
           console.error('Token processing failed:', error);
-          alert(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+          alertModal.showAlert({
+            title: 'Authentication Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+            type: 'error'
+          });
           navigate('/');
         }
       } else {
@@ -53,6 +68,16 @@ export function AuthCallback() {
         <p className="text-gray-600 font-medium">Completing Microsoft authentication...</p>
         <p className="text-sm text-gray-500 mt-2">Please wait while we connect your account</p>
       </div>
+      
+      {/* Alert Modal */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={alertModal.handleClose}
+        title={alertModal.config?.title || ''}
+        message={alertModal.config?.message || ''}
+        type={alertModal.config?.type}
+        buttonText={alertModal.config?.buttonText}
+      />
     </div>
   );
 }
