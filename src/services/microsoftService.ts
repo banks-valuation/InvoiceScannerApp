@@ -739,7 +739,7 @@ export class MicrosoftService {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              address: "A1:G1",
+              address: "A1:G2",
               hasHeaders: true,
               name: "Table1"
             }),
@@ -752,7 +752,7 @@ export class MicrosoftService {
         }
 
         // Add headers (only once)
-        await fetch(
+        const headerResponse = await fetch(
           `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/tables/Table1/headerRowRange`,
           {
             method: "PATCH",
@@ -774,6 +774,10 @@ export class MicrosoftService {
           }
         );
 
+        if (!headerResponse.ok) {
+          const headerErrorText = await headerResponse.text();
+          throw new Error(`Failed to set Excel table headers: ${headerErrorText}`);
+        }
         console.log("Table1 created successfully");
         return; // Success, exit retry loop
 
