@@ -18,7 +18,7 @@ export class SettingsService {
       if (!currentUser) {
         const authPromise = supabase.auth.getUser();
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Authentication check timeout')), 5000)
+          setTimeout(() => reject(new Error('Authentication check timeout')), 10000)
         );
         
         const { data: { user: authUser } } = await Promise.race([authPromise, timeoutPromise]) as any;
@@ -40,7 +40,7 @@ export class SettingsService {
         .maybeSingle();
       
       const dbTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout')), 8000)
+        setTimeout(() => reject(new Error('Database query timeout')), 15000)
       );
       
       const { data, error } = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
