@@ -5,22 +5,27 @@ export class SettingsService {
   private static readonly SETTINGS_KEY = 'app_settings'; // Keep for migration fallback
   private static cachedSettings: AppSettings | null = null;
 
-  static async getSettings(): Promise<AppSettings> {
+  static async getSettings(user?: any): Promise<AppSettings> {
     // Return cached settings immediately if available
     if (this.cachedSettings) {
       return this.cachedSettings;
     }
 
     try {
-      // Check if user is authenticated with timeout
-      const authPromise = supabase.auth.getUser();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Authentication check timeout')), 5000)
-      );
+      let currentUser = user;
       
-      const { data: { user } } = await Promise.race([authPromise, timeoutPromise]) as any;
+      // Only check authentication if user not provided
+      if (!currentUser) {
+        const authPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Authentication check timeout')), 5000)
+        );
+        
+        const { data: { user: authUser } } = await Promise.race([authPromise, timeoutPromise]) as any;
+        currentUser = authUser;
+      }
       
-      if (!user) {
+      if (!currentUser) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
@@ -31,7 +36,7 @@ export class SettingsService {
       const dbPromise = supabase
         .from('user_settings')
         .select('settings')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .maybeSingle();
       
       const dbTimeoutPromise = new Promise((_, reject) => 

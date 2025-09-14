@@ -66,7 +66,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         SettingsService.clearCache();
         try {
           // Preload settings from database to sync with other devices
-          await SettingsService.getSettings();
+          await SettingsService.getSettings(session.user);
         } catch (error) {
           console.error('Failed to reload settings after login:', error);
         }
