@@ -65,35 +65,39 @@ function App() {
         console.log('Invoice created:', savedInvoice);
       }
       
-      // Auto-sync to OneDrive if Microsoft is connected
+      // Return immediately and sync in background
+      setEditingInvoice(null);
+      setCurrentView('list');
+      
+      // Auto-sync to OneDrive in background if Microsoft is connected
       if (MicrosoftService.isAuthenticated()) {
-        try {
-          console.log('Microsoft is connected, auto-syncing to OneDrive...');
-          const syncResult = await InvoiceService.uploadToOneDrive(savedInvoice);
-          if (syncResult.success) {
-            console.log('Auto-sync to OneDrive successful');
-          } else {
-            console.warn('Auto-sync to OneDrive failed:', syncResult.error);
-            // Show a non-blocking warning but don't fail the save operation
+        // Perform sync in background without blocking UI
+        setTimeout(async () => {
+          try {
+            console.log('Microsoft is connected, auto-syncing to OneDrive in background...');
+            const syncResult = await InvoiceService.uploadToOneDrive(savedInvoice);
+            if (syncResult.success) {
+              console.log('Background auto-sync to OneDrive successful');
+            } else {
+              console.warn('Background auto-sync to OneDrive failed:', syncResult.error);
+              // Show a non-blocking warning for background sync failure
+              alertModal.showAlert({
+                title: 'Background Sync Warning',
+                message: `Invoice saved successfully, but background sync to OneDrive failed: ${syncResult.error}. You can manually sync from the invoice list.`,
+                type: 'warning'
+              });
+            }
+          } catch (error) {
+            console.error('Background auto-sync error:', error);
+            // Show a non-blocking warning for background sync error
             alertModal.showAlert({
-              title: 'Sync Warning',
-              message: `Invoice saved successfully, but auto-sync to OneDrive failed: ${syncResult.error}`,
+              title: 'Background Sync Warning',
+              message: 'Invoice saved successfully, but background sync to OneDrive encountered an error. You can manually sync from the invoice list.',
               type: 'warning'
             });
           }
-        } catch (error) {
-          console.error('Auto-sync error:', error);
-          // Show a non-blocking warning but don't fail the save operation
-          alertModal.showAlert({
-            title: 'Sync Warning',
-            message: 'Invoice saved successfully, but auto-sync to OneDrive encountered an error.',
-            type: 'warning'
-          });
-        }
+        }, 100); // Small delay to ensure UI updates first
       }
-      
-      setEditingInvoice(null);
-      setCurrentView('list');
     } catch (error) {
       console.error('Error saving invoice:', error);
       alertModal.showAlert({
