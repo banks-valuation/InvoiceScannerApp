@@ -14,7 +14,7 @@ interface InvoiceListProps {
 }
 
 export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: InvoiceListProps) {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [groupedInvoices, setGroupedInvoices] = useState<Record<string, Record<string, Invoice[]>>>({});
@@ -30,6 +30,17 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   useEffect(() => {
     loadInvoices();
   }, []);
+
+  // Clear invoices when user signs out
+  useEffect(() => {
+    if (!user) {
+      setInvoices([]);
+      setFilteredInvoices([]);
+      setGroupedInvoices({});
+      setSearchTerm('');
+      setSelectedCategory('All');
+    }
+  }, [user]);
 
   useEffect(() => {
     filterInvoices();
