@@ -391,7 +391,7 @@ export class MicrosoftService {
         invoiceData.invoice_date,
         invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
         invoiceData.invoice_amount,
-        invoiceData.onedrive_file_url ? `=HYPERLINK("${invoiceData.onedrive_file_url}","${fileName}")` : fileName,
+        invoiceData.onedrive_file_url,
       ];
 
       if (operation === 'update') {
