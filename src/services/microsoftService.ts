@@ -385,7 +385,6 @@ export class MicrosoftService {
       const fileName = this.createDisplayFileName(invoiceData);
 
       // Prepare the row data
-      const fileName = this.createDisplayFileName(invoiceData);
       const rowData = [
         invoiceData.sequence_id || 0,
         invoiceData.customer_name,
