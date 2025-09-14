@@ -394,7 +394,6 @@ export class MicrosoftService {
         invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
         invoiceData.invoice_amount,
         invoiceData.onedrive_file_url ? `=HYPERLINK("${invoiceData.onedrive_file_url}","${fileName}")` : fileName,
-        new Date().toISOString().split('T')[0], // Date added
       ];
 
       if (operation === 'update') {
@@ -741,7 +740,7 @@ export class MicrosoftService {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              address: "A1:G1",
+              address: "A1:F1",
               hasHeaders: true,
               name: "Table1"
             }),
@@ -770,7 +769,6 @@ export class MicrosoftService {
                 "Description",
                 "Amount",
                 "OneDrive Link",
-                "Date Added"
               ]]
             }),
           }
@@ -854,7 +852,7 @@ export class MicrosoftService {
       }
 
       // Append to the next available row
-      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:G${nextRow}')`, {
+      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:F${nextRow}')`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
