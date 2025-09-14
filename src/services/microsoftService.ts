@@ -385,14 +385,6 @@ export class MicrosoftService {
       const fileName = this.createDisplayFileName(invoiceData);
 
       // Prepare the row data
-      const rowData = [
-        invoiceData.sequence_id || 0, // ID column
-        invoiceData.customer_name,
-        invoiceData.invoice_date,
-        invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
-        invoiceData.invoice_amount,
-        invoiceData.onedrive_file_url || fileName,
-      ];
 
       const rowData = [
         invoiceData.sequence_id || 0,
