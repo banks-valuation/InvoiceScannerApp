@@ -290,6 +290,50 @@ export class MicrosoftService {
     return `${sanitizedCustomerName}-Receipt-${invoiceData.invoice_date}.${fileExtension}`;
   }
 
+private static async ensureExcelFileExists(fileName: string): Promise<string> {
+  // Search for file in OneDrive root
+  const searchResponse = await fetch(
+    `https://graph.microsoft.com/v1.0/me/drive/root/search(q='${fileName}')`,
+    { headers: { Authorization: `Bearer ${this.accessToken}` } }
+  );
+
+  if (!searchResponse.ok) {
+    throw new Error(`Failed to search Excel file: ${await searchResponse.text()}`);
+  }
+
+  const searchData = await searchResponse.json();
+  const existingFile = searchData.value.find((f: any) => f.name === fileName);
+
+  if (existingFile) {
+    return existingFile.id;
+  }
+
+  // If not found, create a new empty workbook
+  const createResponse = await fetch(
+    `https://graph.microsoft.com/v1.0/me/drive/root/children`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: fileName,
+        file: {},
+        '@microsoft.graph.conflictBehavior': 'replace'
+      })
+    }
+  );
+
+  if (!createResponse.ok) {
+    throw new Error(`Failed to create Excel file: ${await createResponse.text()}`);
+  }
+
+  const createdFile = await createResponse.json();
+  return createdFile.id;
+}
+  
+  
   // --- Table creation (clean, no borders) ---
   private static async ensureExcelTableExists(fileId: string): Promise<void> {
     const worksheetsResponse = await fetch(
@@ -347,45 +391,3 @@ export class MicrosoftService {
   }
 }
 
-private static async ensureExcelFileExists(fileName: string): Promise<string> {
-  // Search for file in OneDrive root
-  const searchResponse = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/root/search(q='${fileName}')`,
-    { headers: { Authorization: `Bearer ${this.accessToken}` } }
-  );
-
-  if (!searchResponse.ok) {
-    throw new Error(`Failed to search Excel file: ${await searchResponse.text()}`);
-  }
-
-  const searchData = await searchResponse.json();
-  const existingFile = searchData.value.find((f: any) => f.name === fileName);
-
-  if (existingFile) {
-    return existingFile.id;
-  }
-
-  // If not found, create a new empty workbook
-  const createResponse = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/root/children`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: fileName,
-        file: {},
-        '@microsoft.graph.conflictBehavior': 'replace'
-      })
-    }
-  );
-
-  if (!createResponse.ok) {
-    throw new Error(`Failed to create Excel file: ${await createResponse.text()}`);
-  }
-
-  const createdFile = await createResponse.json();
-  return createdFile.id;
-}
