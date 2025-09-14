@@ -433,12 +433,6 @@ export class MicrosoftService {
     }
   }
 
-  // Helper method to get the next row number for HYPERLINK formula
-  private static getNextRowNumber(): string {
-    // This will be dynamically calculated when we know the actual row position
-    return 'ROW()';
-  }
-
   // Create a meaningful display filename for Excel
   private static createDisplayFileName(invoiceData: any): string {
     // Use the original filename pattern that was used during upload
@@ -872,7 +866,7 @@ export class MicrosoftService {
       }
 
       // Append to the next available row
-      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:F${nextRow}')`, {
+      const appendResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${worksheetName}/range(address='A${nextRow}:H${nextRow}')`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
