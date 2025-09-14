@@ -683,7 +683,17 @@ export class MicrosoftService {
     const worksheetsResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets`, {
       headers: { 'Authorization': `Bearer ${this.accessToken}` }
     });
+    
+    if (!worksheetsResponse.ok) {
+      throw new Error(`Failed to get worksheets: ${worksheetsResponse.statusText}`);
+    }
+    
     const worksheetsData = await worksheetsResponse.json();
+    
+    if (!worksheetsData.value || worksheetsData.value.length === 0) {
+      throw new Error('No worksheets found in Excel file');
+    }
+    
     const worksheetName = worksheetsData.value[0]?.name || "Sheet1";
 
     const maxRetries = 3;
