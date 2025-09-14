@@ -44,15 +44,32 @@ export class SupabaseInvoiceService {
 
   static async getInvoices(): Promise<Invoice[]> {
     try {
+      console.log('Fetching invoices from Supabase...');
+      
+      // Check if user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Auth error when fetching invoices:', authError);
+        throw new Error(`Authentication error: ${authError.message}`);
+      }
+      
+      if (!user) {
+        console.log('No authenticated user, returning empty array');
+        return [];
+      }
+      
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Supabase query error:', error);
         throw new Error(`Failed to fetch invoices: ${error.message}`);
       }
 
+      console.log('Successfully fetched invoices:', data?.length || 0);
       return data || [];
     } catch (error) {
       console.error('Error fetching invoices:', error);

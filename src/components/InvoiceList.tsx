@@ -31,6 +31,18 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     loadInvoices();
   }, []);
 
+  // Add timeout for loading state
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('Loading invoices timed out, setting loading to false');
+        setIsLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
   // Clear invoices when user signs out
   useEffect(() => {
     if (!user) {
@@ -51,11 +63,22 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   }, [filteredInvoices]);
 
   const loadInvoices = async () => {
+    setIsLoading(true);
     try {
+      console.log('Starting to load invoices...');
       const data = await InvoiceService.getInvoices();
+      console.log('Loaded invoices:', data.length);
       setInvoices(data);
     } catch (error) {
       console.error('Error loading invoices:', error);
+      // Show error to user instead of staying stuck
+      alertModal.showAlert({
+        title: 'Loading Failed',
+        message: 'Failed to load invoices. Please try refreshing the page.',
+        type: 'error'
+      });
+      // Set empty array so UI doesn't stay in loading state
+      setInvoices([]);
     } finally {
       setIsLoading(false);
     }
