@@ -449,6 +449,8 @@ export class MicrosoftService {
 
     while (attempt < maxRetries) {
       try {
+        console.log('Attempting to append Excel row for invoice:', excelFileId, rowData);
+
         const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows`, {
           method: 'POST',
           headers: {
@@ -546,8 +548,8 @@ export class MicrosoftService {
   // Update existing row in Excel
   private static async updateExistingRow(excelFileId: string, invoiceData: any, rowData: any[]): Promise<boolean> {
     try {
-      console.log('Attempting to update existing Excel row for invoice:', invoiceData.id);
-      
+      console.log('Attempting to update existing Excel row for invoice:', invoiceData.id, rowData);
+    
       // Get all table data to find the matching row
       const tableResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${excelFileId}/workbook/tables/Table1/rows`, {
         headers: {
