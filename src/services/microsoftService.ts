@@ -394,6 +394,16 @@ export class MicrosoftService {
         invoiceData.onedrive_file_url || fileName,
       ];
 
+      const rowData = [
+        invoiceData.sequence_id || 0,
+        invoiceData.customer_name,
+        invoiceData.invoice_date,
+        invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
+        invoiceData.invoice_amount,
+        invoiceData.onedrive_file_url ? `=HYPERLINK("${invoiceData.onedrive_file_url}","${fileName}")` : fileName,
+      ];
+      
+
       if (operation === 'update') {
         // For update operations, always check if row exists first
         console.log('Update operation: checking for existing row');
