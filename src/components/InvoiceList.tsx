@@ -133,7 +133,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
           .forEach(month => {
             // Sort invoices within month by date (newest first)
             sortedGrouped[year][month] = grouped[year][month].sort((a, b) => 
-              b.invoice_date.localeCompare(a.invoice_date)
+              a.invoice_date.localeCompare(b.invoice_date)
             );
           });
       });
