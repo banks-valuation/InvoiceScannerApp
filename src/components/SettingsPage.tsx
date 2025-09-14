@@ -28,17 +28,45 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   useEffect(() => {
     // Load settings from database
     const loadSettings = async () => {
+      setIsLoadingSettings(true);
       try {
+        console.log('Loading settings...');
+        const startTime = Date.now();
         const loadedSettings = await SettingsService.getSettings();
+        const loadTime = Date.now() - startTime;
+        console.log(`Settings loaded in ${loadTime}ms`);
         setSettings(loadedSettings);
       } catch (error) {
         console.error('Failed to load settings:', error);
+        // Use default settings if loading fails
+        setSettings(DEFAULT_SETTINGS);
+        alertModal.showAlert({
+          title: 'Settings Load Failed',
+          message: 'Failed to load settings from database. Using default settings.',
+          type: 'warning'
+        });
       } finally {
         setIsLoadingSettings(false);
       }
     };
 
+    // Add timeout for loading settings
+    const timeoutId = setTimeout(() => {
+      if (isLoadingSettings) {
+        console.warn('Settings loading timed out');
+        setSettings(DEFAULT_SETTINGS);
+        setIsLoadingSettings(false);
+        alertModal.showAlert({
+          title: 'Loading Timeout',
+          message: 'Settings loading took too long. Using default settings.',
+          type: 'warning'
+        });
+      }
+    }, 10000);
+
     loadSettings();
+    
+    return () => clearTimeout(timeoutId);
 
     // Check authentication status when component mounts and periodically
     const checkAuth = () => {

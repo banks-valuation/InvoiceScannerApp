@@ -6,26 +6,46 @@ export class SettingsService {
   private static cachedSettings: AppSettings | null = null;
 
   static async getSettings(): Promise<AppSettings> {
+    // Return cached settings immediately if available
+    if (this.cachedSettings) {
+      return this.cachedSettings;
+    }
+
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
+      // Check if user is authenticated with timeout
+      const authPromise = supabase.auth.getUser();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Authentication check timeout')), 5000)
+      );
+      
+      const { data: { user } } = await Promise.race([authPromise, timeoutPromise]) as any;
       
       if (!user) {
         // If not authenticated, fall back to localStorage
-        return this.getLocalSettings();
+        const localSettings = this.getLocalSettings();
+        this.cachedSettings = localSettings;
+        return localSettings;
       }
 
-      // Try to get settings from database
-      const { data, error } = await supabase
+      // Try to get settings from database with timeout
+      const dbPromise = supabase
         .from('user_settings')
         .select('settings')
         .eq('user_id', user.id)
         .maybeSingle();
+      
+      const dbTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 8000)
+      );
+      
+      const { data, error } = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
 
       if (error) {
         console.error('Error fetching settings from database:', error);
         // Fall back to localStorage on error
-        return this.getLocalSettings();
+        const localSettings = this.getLocalSettings();
+        this.cachedSettings = localSettings;
+        return localSettings;
       }
 
       if (data?.settings) {
@@ -51,15 +71,23 @@ export class SettingsService {
       const localSettings = this.getLocalSettings();
       if (localSettings !== DEFAULT_SETTINGS) {
         // Migrate localStorage settings to database
-        await this.saveSettings(localSettings);
+        try {
+          await this.saveSettings(localSettings);
+        } catch (migrationError) {
+          console.warn('Settings migration failed:', migrationError);
+          // Continue with local settings even if migration fails
+        }
         return localSettings;
       }
 
       // Return defaults
+      this.cachedSettings = DEFAULT_SETTINGS;
       return DEFAULT_SETTINGS;
     } catch (error) {
       console.error('Error in getSettings:', error);
-      return this.getLocalSettings();
+      const localSettings = this.getLocalSettings();
+      this.cachedSettings = localSettings;
+      return localSettings;
     }
   }
 
