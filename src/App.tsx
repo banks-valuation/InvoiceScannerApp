@@ -6,6 +6,7 @@ import { SettingsPage } from './components/SettingsPage';
 import { AlertModal } from './components/Modal';
 import { useAlertModal } from './hooks/useModal';
 import { InvoiceService } from './services/invoiceService';
+import { MicrosoftService } from './services/microsoftService';
 import { InvoiceFormData, Invoice } from './types/invoice';
 
 type AppView = 'list' | 'add' | 'edit' | 'settings';
@@ -43,14 +44,16 @@ function App() {
   const handleSubmitInvoice = async (formData: InvoiceFormData) => {
     setIsSubmitting(true);
     try {
+      let savedInvoice: Invoice;
+      
       if (editingInvoice) {
-        const updatedInvoice = await InvoiceService.updateInvoice(editingInvoice.id, formData);
-        console.log('Invoice updated:', updatedInvoice);
+        savedInvoice = await InvoiceService.updateInvoice(editingInvoice.id, formData);
+        console.log('Invoice updated:', savedInvoice);
         
         // If the invoice was previously synced to OneDrive/Excel, resync the changes
-        if (updatedInvoice.onedrive_uploaded && updatedInvoice.excel_synced) {
+        if (savedInvoice.onedrive_uploaded && savedInvoice.excel_synced) {
           try {
-            await InvoiceService.resyncToExcel(updatedInvoice);
+            await InvoiceService.resyncToExcel(savedInvoice);
             console.log('Invoice changes resynced to Excel');
           } catch (error) {
             console.error('Failed to resync to Excel:', error);
@@ -58,11 +61,36 @@ function App() {
           }
         }
       } else {
-        const newInvoice = await InvoiceService.createInvoice(formData);
-        console.log('Invoice created:', newInvoice);
+        savedInvoice = await InvoiceService.createInvoice(formData);
+        console.log('Invoice created:', savedInvoice);
       }
       
-      // Note: OneDrive and Excel integration would happen here when configured
+      // Auto-sync to OneDrive if Microsoft is connected
+      if (MicrosoftService.isAuthenticated()) {
+        try {
+          console.log('Microsoft is connected, auto-syncing to OneDrive...');
+          const syncResult = await InvoiceService.uploadToOneDrive(savedInvoice);
+          if (syncResult.success) {
+            console.log('Auto-sync to OneDrive successful');
+          } else {
+            console.warn('Auto-sync to OneDrive failed:', syncResult.error);
+            // Show a non-blocking warning but don't fail the save operation
+            alertModal.showAlert({
+              title: 'Sync Warning',
+              message: `Invoice saved successfully, but auto-sync to OneDrive failed: ${syncResult.error}`,
+              type: 'warning'
+            });
+          }
+        } catch (error) {
+          console.error('Auto-sync error:', error);
+          // Show a non-blocking warning but don't fail the save operation
+          alertModal.showAlert({
+            title: 'Sync Warning',
+            message: 'Invoice saved successfully, but auto-sync to OneDrive encountered an error.',
+            type: 'warning'
+          });
+        }
+      }
       
       setEditingInvoice(null);
       setCurrentView('list');
