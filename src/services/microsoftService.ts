@@ -391,7 +391,7 @@ export class MicrosoftService {
         invoiceData.invoice_date,
         invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
         invoiceData.invoice_amount,
-        invoiceData.onedrive_file_url,
+        invoiceData.onedrive_file_url ? `=HYPERLINK("${invoiceData.onedrive_file_url}","${fileName}")` : fileName,
       ];
 
       if (operation === 'update') {
@@ -748,7 +748,7 @@ export class MicrosoftService {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              address: "A1:F2",
+              address: "A1:F1",
               hasHeaders: true,
               name: "Table1"
             }),
