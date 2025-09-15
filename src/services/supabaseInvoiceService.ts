@@ -50,6 +50,11 @@ export class SupabaseInvoiceService {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
+        // Handle specific "Auth session missing!" error gracefully
+        if (authError.message === 'Auth session missing!') {
+          console.log('No auth session, returning empty array');
+          return [];
+        }
         console.error('Auth error when fetching invoices:', authError);
         throw new Error(`Authentication error: ${authError.message}`);
       }
