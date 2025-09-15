@@ -13,26 +13,40 @@ export class SettingsService {
 
     try {
       let currentUser = user;
-      
+
       // Only check authentication if user not provided
       if (!currentUser) {
-        const authPromise = supabase.auth.getUser().then(result => ({ result, timeout: false }));
-        const authTimeoutPromise = new Promise(resolve => 
+        const authPromise = supabase.auth.getUser()
+          .then(result => ({ result, timeout: false }))
+          .catch(err => ({ error: err, timeout: false }));
+
+        const authTimeoutPromise = new Promise(resolve =>
           setTimeout(() => resolve({ timeout: true }), 10000)
         );
-        
+
         const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
-        
+
         if (authResult.timeout) {
           console.warn('Authentication check timed out, falling back to localStorage');
           const localSettings = this.getLocalSettings();
           this.cachedSettings = localSettings;
           return localSettings;
         }
-        
-        currentUser = authResult.result.data.user;
+
+        if (authResult.error) {
+          if (authResult.error.message === 'Auth session missing!') {
+            console.log('No auth session, using localStorage settings');
+            const localSettings = this.getLocalSettings();
+            this.cachedSettings = localSettings;
+            return localSettings;
+          }
+          console.error('Auth error when fetching settings:', authResult.error);
+          throw new Error(`Authentication error: ${authResult.error.message}`);
+        }
+
+        currentUser = authResult.result?.data?.user;
       }
-      
+
       if (!currentUser) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
@@ -46,26 +60,33 @@ export class SettingsService {
         .select('settings')
         .eq('user_id', currentUser.id)
         .maybeSingle()
-        .then(result => ({ result, timeout: false }));
-      
-      const dbTimeoutPromise = new Promise(resolve => 
+        .then(result => ({ result, timeout: false }))
+        .catch(err => ({ error: err, timeout: false }));
+
+      const dbTimeoutPromise = new Promise(resolve =>
         setTimeout(() => resolve({ timeout: true }), 15000)
       );
-      
+
       const dbResult = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
-      
+
       if (dbResult.timeout) {
         console.warn('Database query timed out, falling back to localStorage');
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
         return localSettings;
       }
-      
+
+      if (dbResult.error) {
+        console.error('Error fetching settings from database:', dbResult.error);
+        const localSettings = this.getLocalSettings();
+        this.cachedSettings = localSettings;
+        return localSettings;
+      }
+
       const { data, error } = dbResult.result;
 
       if (error) {
         console.error('Error fetching settings from database:', error);
-        // Fall back to localStorage on error
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
         return localSettings;
@@ -85,7 +106,7 @@ export class SettingsService {
             ...data.settings.general,
           },
         };
-        
+
         this.cachedSettings = dbSettings;
         return dbSettings;
       }
@@ -98,12 +119,10 @@ export class SettingsService {
           await this.saveSettings(localSettings);
         } catch (migrationError) {
           console.warn('Settings migration failed:', migrationError);
-          // Continue with local settings even if migration fails
         }
         return localSettings;
       }
 
-      // Return defaults
       this.cachedSettings = DEFAULT_SETTINGS;
       return DEFAULT_SETTINGS;
     } catch (error) {
@@ -116,16 +135,23 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const { data, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        if (authError.message === 'Auth session missing!') {
+          console.log('No auth session, saving settings locally');
+          this.saveLocalSettings(settings);
+          return;
+        }
+        throw authError;
+      }
+
+      const user = data?.user;
       if (!user) {
-        // If not authenticated, save to localStorage
         this.saveLocalSettings(settings);
         return;
       }
 
-      // Save to database using upsert
       const { error } = await supabase
         .from('user_settings')
         .upsert({
@@ -137,19 +163,14 @@ export class SettingsService {
 
       if (error) {
         console.error('Error saving settings to database:', error);
-        // Fall back to localStorage on error
         this.saveLocalSettings(settings);
         throw new Error('Failed to save settings to database');
       }
 
-      // Update cache
       this.cachedSettings = settings;
-
-      // Also save to localStorage as backup
       this.saveLocalSettings(settings);
     } catch (error) {
       console.error('Error in saveSettings:', error);
-      // Fall back to localStorage
       this.saveLocalSettings(settings);
       throw error;
     }
@@ -157,11 +178,21 @@ export class SettingsService {
 
   static async resetSettings(): Promise<void> {
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const { data, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        if (authError.message === 'Auth session missing!') {
+          console.log('No auth session, clearing local settings only');
+          localStorage.removeItem(this.SETTINGS_KEY);
+          this.cachedSettings = null;
+          return;
+        }
+        throw authError;
+      }
+
+      const user = data?.user;
+
       if (user) {
-        // Delete from database
         const { error } = await supabase
           .from('user_settings')
           .delete()
@@ -172,14 +203,10 @@ export class SettingsService {
         }
       }
 
-      // Clear cache
       this.cachedSettings = null;
-      
-      // Also clear localStorage
       localStorage.removeItem(this.SETTINGS_KEY);
     } catch (error) {
       console.error('Error in resetSettings:', error);
-      // At least clear localStorage
       localStorage.removeItem(this.SETTINGS_KEY);
     }
   }
@@ -214,7 +241,6 @@ export class SettingsService {
       const stored = localStorage.getItem(this.SETTINGS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Merge with defaults to ensure all properties exist
         return {
           ...DEFAULT_SETTINGS,
           ...parsed,
@@ -242,7 +268,6 @@ export class SettingsService {
     }
   }
 
-  // Clear cached settings when user signs out
   static clearCache(): void {
     this.cachedSettings = null;
   }
