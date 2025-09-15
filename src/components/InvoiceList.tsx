@@ -147,11 +147,11 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
       .forEach(year => {
         sortedGrouped[year] = {};
         Object.keys(grouped[year])
-          .sort((a, b) => b.localeCompare(a)) // Newest month first
+          .sort((a, b) => a.localeCompare(b)) // January to December (01 to 12)
           .forEach(month => {
             // Sort invoices within month by date (newest first)
             sortedGrouped[year][month] = grouped[year][month].sort((a, b) => 
-              a.invoice_date.localeCompare(b.invoice_date)
+              b.invoice_date.localeCompare(a.invoice_date)
             );
           });
       });
