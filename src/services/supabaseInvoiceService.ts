@@ -1,10 +1,17 @@
 import { supabase } from '../lib/supabaseClient';
 import { Invoice, InvoiceFormData } from '../types/invoice';
 
+/**
+ * SupabaseInvoiceService
+ *
+ * Notes:
+ * - We no longer call supabase.auth.getUser() inside this service.
+ * - Instead, pass the current user (from AuthProvider/useAuth) into methods when needed.
+ */
 export class SupabaseInvoiceService {
   private static readonly BUCKET_NAME = 'invoices';
 
-  static async createInvoice(formData: InvoiceFormData): Promise<Invoice> {
+  static async createInvoice(formData: InvoiceFormData, userId: string): Promise<Invoice> {
     try {
       let fileUrl = '';
       let fileType: 'image' | 'pdf' = 'image';
@@ -20,6 +27,7 @@ export class SupabaseInvoiceService {
       const { data, error } = await supabase
         .from('invoices')
         .insert([{
+          user_id: userId,
           customer_name: formData.customer_name,
           invoice_date: formData.invoice_date,
           invoice_amount: parseFloat(formData.invoice_amount),
@@ -42,37 +50,18 @@ export class SupabaseInvoiceService {
     }
   }
 
-  static async getInvoices(): Promise<Invoice[]> {
+  static async getInvoices(userId: string): Promise<Invoice[]> {
     try {
       console.log('Fetching invoices from Supabase...');
-      
-      // Check if user is authenticated
-      console.time("auth");
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.timeEnd("auth");
-      
-      if (authError) {
-        // Handle specific "Auth session missing!" error gracefully
-        if (authError.message === 'Auth session missing!') {
-          console.log('No auth session, returning empty array');
-          return [];
-        }
-        console.error('Auth error when fetching invoices:', authError);
-        throw new Error(`Authentication error: ${authError.message}`);
-      }
-      
-      if (!user) {
-        console.log('No authenticated user, returning empty array');
-        return [];
-      }
 
       console.time("query");
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       console.timeEnd("query");
-      
+
       if (error) {
         console.error('Supabase query error:', error);
         throw new Error(`Failed to fetch invoices: ${error.message}`);
@@ -176,11 +165,11 @@ export class SupabaseInvoiceService {
   }
 
   static async updateInvoiceOneDriveStatus(
-    id: string, 
-    oneDriveData: { 
-      onedrive_uploaded: boolean; 
-      onedrive_file_url?: string; 
-      excel_synced?: boolean 
+    id: string,
+    oneDriveData: {
+      onedrive_uploaded: boolean;
+      onedrive_file_url?: string;
+      excel_synced?: boolean;
     }
   ): Promise<Invoice> {
     try {
@@ -214,7 +203,7 @@ export class SupabaseInvoiceService {
         .from(this.BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
         });
 
       if (error) {
@@ -246,16 +235,13 @@ export class SupabaseInvoiceService {
 
       if (error) {
         console.warn('Failed to delete file from storage:', error.message);
-        // Don't throw error for file deletion failures
       }
     } catch (error) {
       console.warn('Error deleting file:', error);
-      // Don't throw error for file deletion failures
     }
   }
 
   static getFileUrl(fileUrl: string): string {
-    // For Supabase storage, the file URL is already the public URL
     return fileUrl;
   }
 }
