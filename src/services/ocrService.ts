@@ -54,7 +54,7 @@ export class OCRService {
       if (!extractedData) {
         throw new Error('No data extracted from the document');
       }
-      console.log("extractedData: " + extractedData);
+      console.log("extractedData:", JSON.stringify(extractedData, null, 2));
       
       // Format the extracted data to match our form structure
       const result: {
