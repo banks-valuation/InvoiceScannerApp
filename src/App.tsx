@@ -78,6 +78,8 @@ function App() {
             const syncResult = await InvoiceService.uploadToOneDrive(savedInvoice);
             if (syncResult.success) {
               console.log('Background auto-sync to OneDrive successful');
+              // Force a refresh of the invoice list to show updated sync status
+              window.dispatchEvent(new CustomEvent('invoiceUpdated'));
             } else {
               console.warn('Background auto-sync to OneDrive failed:', syncResult.error);
               // Show a non-blocking warning for background sync failure

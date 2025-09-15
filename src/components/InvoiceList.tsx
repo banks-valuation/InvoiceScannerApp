@@ -31,6 +31,16 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     loadInvoices();
   }, []);
 
+   // Listen for invoice updates from background sync
+   useEffect(() => {
+     const handleInvoiceUpdate = () => {
+       loadInvoices();
+     };
+
+     window.addEventListener('invoiceUpdated', handleInvoiceUpdate);
+     return () => window.removeEventListener('invoiceUpdated', handleInvoiceUpdate);
+   }, []);
+
   // Add timeout for loading state
   useEffect(() => {
     const timeout = setTimeout(() => {
