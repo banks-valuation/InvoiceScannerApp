@@ -112,7 +112,7 @@ export class OCRService {
             
             // For YYYY-MM-DD format
             if (format === formats[2]) {
-              console.log("format is YYYY-MN-DD:", ${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')});
+              console.log(`format is YYYY-MN-DD: ${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')}`);
               return `${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')}`;
             }
             
@@ -122,7 +122,7 @@ export class OCRService {
             const year = parseInt(part3);
             
             if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-              console.log("returning: ", ${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')});
+              console.log(`returning: ${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
               return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             }
           }
@@ -134,7 +134,7 @@ export class OCRService {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
-      console.log("returning final: ", ${year}-${month}-${day});
+      console.log(`returning final: ${year}-${month}-${day}`);
       return `${year}-${month}-${day}`;
     } catch {
       return null;
