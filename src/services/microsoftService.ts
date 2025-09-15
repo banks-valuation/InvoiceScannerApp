@@ -1241,4 +1241,48 @@ export class MicrosoftService {
       throw error;
     }
   }
+
+  // List Excel files in a specific path (for settings page folder browser)
+  static async listExcelFilesInPath(path: string = ''): Promise<Array<{ name: string; path: string }>> {
+    const hasValidToken = await this.ensureValidToken();
+    if (!hasValidToken) {
+      throw new Error('Authentication required');
+    }
+
+    try {
+      const endpoint = path 
+        ? `https://graph.microsoft.com/v1.0/me/drive/root:/${path}:/children`
+        : 'https://graph.microsoft.com/v1.0/me/drive/root/children';
+
+      console.log('Making request to endpoint for Excel files:', endpoint);
+
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`Failed to list Excel files: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response data for Excel files:', data);
+      
+      return data.value
+        .filter((item: any) => !item.folder && item.name.toLowerCase().endsWith('.xlsx')) // Only Excel files
+        .map((file: any) => ({
+          name: file.name,
+          path: path ? `${path}/${file.name}` : file.name,
+        }));
+    } catch (error) {
+      console.error('Failed to list Excel files in path:', error);
+      throw error;
+    }
+  }
 }

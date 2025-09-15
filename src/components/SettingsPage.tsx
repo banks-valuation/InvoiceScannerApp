@@ -18,6 +18,10 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [availableFiles, setAvailableFiles] = useState<Array<{ name: string; path: string }>>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [showExcelBrowser, setShowExcelBrowser] = useState(false);
+  const [excelBrowserPath, setExcelBrowserPath] = useState('');
+  const [availableExcelItems, setAvailableExcelItems] = useState<Array<{ name: string; path: string; isFolder: boolean }>>([]);
+  const [isLoadingExcelItems, setIsLoadingExcelItems] = useState(false);
   const [showFolderBrowser, setShowFolderBrowser] = useState(false);
   const [folderBrowserPath, setFolderBrowserPath] = useState('');
   const [availableFolders, setAvailableFolders] = useState<Array<{ name: string; path: string; isFolder: boolean }>>([]);
@@ -138,6 +142,60 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
     } finally {
       setIsLoadingFiles(false);
     }
+  };
+
+  const loadExcelItems = async (path: string = '') => {
+    if (!isAuthenticated) return;
+    
+    console.log('loadExcelItems called with path:', path);
+    setIsLoadingExcelItems(true);
+    try {
+      // Get both folders and Excel files in the current path
+      const [folders, files] = await Promise.all([
+        MicrosoftService.listFolders(path),
+        MicrosoftService.listExcelFilesInPath(path)
+      ]);
+      
+      // Combine folders and Excel files
+      const combined = [
+        ...folders.map(folder => ({ ...folder, isFolder: true })),
+        ...files.map(file => ({ ...file, isFolder: false }))
+      ];
+      
+      console.log('Loaded Excel items:', combined);
+      setAvailableExcelItems(combined);
+      setExcelBrowserPath(path);
+    } catch (error) {
+      console.error('Failed to load Excel items:', error);
+      alertModal.showAlert({
+        title: 'Load Failed',
+        message: `Failed to load items: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and permissions.`,
+        type: 'error'
+      });
+    } finally {
+      setIsLoadingExcelItems(false);
+    }
+  };
+
+  const handleExcelFileSelect = (fileName: string, filePath: string) => {
+    // Extract just the filename for the setting
+    const justFileName = fileName;
+    handleInputChange('onedrive', 'excelFileName', justFileName);
+    
+    // Store the full path for reference (we might need this later)
+    console.log('Selected Excel file:', { fileName, filePath });
+    setShowExcelBrowser(false);
+  };
+
+  const navigateToExcelFolder = (folderPath: string) => {
+    loadExcelItems(folderPath);
+  };
+
+  const navigateExcelUp = () => {
+    const pathParts = excelBrowserPath.split('/').filter(part => part.length > 0);
+    pathParts.pop();
+    const parentPath = pathParts.join('/');
+    loadExcelItems(parentPath);
   };
 
   const loadFolders = async (path: string = '') => {
@@ -325,14 +383,18 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                   </label>
                   {isAuthenticated && (
                     <button
-                      onClick={loadAvailableExcelFiles}
-                      disabled={isLoadingFiles}
+                      onClick={() => {
+                        console.log('Browse Excel Files button clicked');
+                        setShowExcelBrowser(true);
+                        loadExcelItems();
+                      }}
+                      disabled={isLoadingExcelItems}
                       className="flex items-center gap-2 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     >
-                      {isLoadingFiles ? (
+                      {isLoadingExcelItems ? (
                         <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <RefreshCw className="w-3 h-3" />
+                        <FileSpreadsheet className="w-3 h-3" />
                       )}
                       Browse Files
                     </button>
@@ -517,6 +579,89 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                         <Folder className="w-5 h-5 text-blue-600" />
                         <span className="flex-1 text-gray-900">{folder.name}</span>
                         <ChevronRight className="w-4 h-4 text-gray-400" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Excel File Browser Modal */}
+      {showExcelBrowser && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Browse Excel Files</h3>
+                <button
+                  onClick={() => setShowExcelBrowser(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              {/* Current Path */}
+              <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                <FileSpreadsheet className="w-4 h-4" />
+                <span>Current path: /{excelBrowserPath || 'OneDrive Root'}</span>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {/* Navigation */}
+              <div className="flex items-center gap-2 mb-4">
+                {excelBrowserPath && (
+                  <button
+                    onClick={navigateExcelUp}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Go Up
+                  </button>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="border rounded-lg max-h-64 overflow-y-auto">
+                {isLoadingExcelItems ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <span className="ml-3 text-gray-600">Loading...</span>
+                  </div>
+                ) : availableExcelItems.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileSpreadsheet className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p>No folders or Excel files found in this location</p>
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {availableExcelItems.map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          if (item.isFolder) {
+                            navigateToExcelFolder(item.path);
+                          } else {
+                            handleExcelFileSelect(item.name, item.path);
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        {item.isFolder ? (
+                          <Folder className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <FileSpreadsheet className="w-5 h-5 text-green-600" />
+                        )}
+                        <span className="flex-1 text-gray-900">{item.name}</span>
+                        {item.isFolder ? (
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        ) : (
+                          <span className="text-xs text-gray-500">Select</span>
+                        )}
                       </button>
                     ))}
                   </div>
