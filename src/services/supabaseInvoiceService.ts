@@ -47,7 +47,19 @@ export class SupabaseInvoiceService {
       console.log('Fetching invoices from Supabase...');
       
       // Check if user is authenticated
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const authPromise = supabase.auth.getUser();
+      const authTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Auth check timeout')), 3000)
+      );
+      
+      let user, authError;
+      try {
+        const result = await Promise.race([authPromise, authTimeoutPromise]);
+        ({ data: { user }, error: authError } = result as any);
+      } catch (error) {
+        console.log('Auth check timed out, returning empty array');
+        return [];
+      }
       
       if (authError) {
         // Handle specific "Auth session missing!" error gracefully
@@ -64,10 +76,17 @@ export class SupabaseInvoiceService {
         return [];
       }
       
-      const { data, error } = await supabase
+      // Add timeout to the database query
+      const queryPromise = supabase
         .from('invoices')
         .select('*')
         .order('created_at', { ascending: false });
+      
+      const queryTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 5000)
+      );
+      
+      const { data, error } = await Promise.race([queryPromise, queryTimeoutPromise]) as any;
 
       if (error) {
         console.error('Supabase query error:', error);
@@ -78,7 +97,8 @@ export class SupabaseInvoiceService {
       return data || [];
     } catch (error) {
       console.error('Error fetching invoices:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent UI from getting stuck
+      return [];
     }
   }
 
