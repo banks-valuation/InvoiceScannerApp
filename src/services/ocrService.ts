@@ -91,55 +91,55 @@ export class OCRService {
     }
   }
 
-private static formatDateForInput(dateStr: string): string | null {
-  try {
-    // Try to parse with the Date constructor first
-    const date = new Date(dateStr);
+  private static formatDateForInput(dateStr: string): string | null {
+    try {
+      // Try to parse various date formats and convert to YYYY-MM-DD
+      const date = new Date(dateStr);
+      
+      if (isNaN(date.getTime())) {
+        // Try parsing common formats manually
+        const formats = [
+          /(\d{1,2})\/(\d{1,2})\/(\d{4})/,  // MM/DD/YYYY or DD/MM/YYYY
+          /(\d{1,2})-(\d{1,2})-(\d{4})/,   // MM-DD-YYYY or DD-MM-YYYY
+          /(\d{4})-(\d{1,2})-(\d{1,2})/,   // YYYY-MM-DD
+          /(\d{1,2})\.(\d{1,2})\.(\d{4})/  // MM.DD.YYYY or DD.MM.YYYY
+        ];
 
-    if (!isNaN(date.getTime())) {
-      // Use UTC getters to avoid timezone shift
-      const year = date.getUTCFullYear();
-      const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-      const day = date.getUTCDate().toString().padStart(2, '0');
-      console.log(`returning final (UTC): ${year}-${month}-${day}`);
-      return `${year}-${month}-${day}`;
-    }
-
-    // Fallback: parse manually with regex
-    const formats = [
-      /(\d{1,2})\/(\d{1,2})\/(\d{4})/,  // MM/DD/YYYY or DD/MM/YYYY
-      /(\d{1,2})-(\d{1,2})-(\d{4})/,   // MM-DD-YYYY or DD-MM-YYYY
-      /(\d{4})-(\d{1,2})-(\d{1,2})/,   // YYYY-MM-DD
-      /(\d{1,2})\.(\d{1,2})\.(\d{4})/  // MM.DD.YYYY or DD.MM.YYYY
-    ];
-
-    for (const format of formats) {
-      const match = dateStr.match(format);
-      if (match) {
-        const [, part1, part2, part3] = match;
-
-        // YYYY-MM-DD case
-        if (format === formats[2]) {
-          return `${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')}`;
+        for (const format of formats) {
+          const match = dateStr.match(format);
+          if (match) {
+            const [, part1, part2, part3] = match;
+            
+            // For YYYY-MM-DD format
+            if (format === formats[2]) {
+              console.log(`format is YYYY-MN-DD: ${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')}`);
+              return `${part1}-${part2.padStart(2, '0')}-${part3.padStart(2, '0')}`;
+            }
+            
+            // For other formats, assume MM/DD/YYYY (US format)
+            const month = parseInt(part1);
+            const day = parseInt(part2);
+            const year = parseInt(part3);
+            
+            if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+              console.log(`returning: ${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+              return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            }
+          }
         }
-
-        // Other cases: assume MM/DD/YYYY
-        const month = parseInt(part1);
-        const day = parseInt(part2);
-        const year = parseInt(part3);
-
-        if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-          return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        }
+        return null;
       }
+
+      // If Date constructor worked, format it
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      console.log(`returning final: ${year}-${month}-${day}`);
+      return `${year}-${month}-${day}`;
+    } catch {
+      return null;
     }
-
-    return null;
-  } catch {
-    return null;
   }
-}
-
 
   private static toProperCase(str: string): string {
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
