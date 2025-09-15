@@ -47,7 +47,9 @@ export class SupabaseInvoiceService {
       console.log('Fetching invoices from Supabase...');
       
       // Check if user is authenticated
+      console.time("auth");
       const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.timeEnd("auth");
       
       if (authError) {
         // Handle specific "Auth session missing!" error gracefully
@@ -63,12 +65,14 @@ export class SupabaseInvoiceService {
         console.log('No authenticated user, returning empty array');
         return [];
       }
-      
+
+      console.time("query");
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
         .order('created_at', { ascending: false });
-
+      console.timeEnd("query");
+      
       if (error) {
         console.error('Supabase query error:', error);
         throw new Error(`Failed to fetch invoices: ${error.message}`);
