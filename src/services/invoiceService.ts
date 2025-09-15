@@ -3,17 +3,17 @@ import { Invoice, InvoiceFormData } from '../types/invoice';
 import { MicrosoftService, OneDriveUploadResult } from './microsoftService';
 
 export class InvoiceService {
-  static async createInvoice(formData: InvoiceFormData): Promise<Invoice> {
-    return SupabaseInvoiceService.createInvoice(formData);
+  static async createInvoice(formData: InvoiceFormData, userId: string): Promise<Invoice> {
+    return SupabaseInvoiceService.createInvoice(formData, userId);
   }
 
-  static async getInvoices(): Promise<Invoice[]> {
-    return SupabaseInvoiceService.getInvoices();
+  static async getInvoices(userId: string): Promise<Invoice[]> {
+    return SupabaseInvoiceService.getInvoices(userId);
   }
 
-  static async deleteInvoice(id: string): Promise<void> {
+  static async deleteInvoice(id: string, userId: string): Promise<void> {
     // Get the invoice before deleting to access OneDrive info
-    const invoices = await this.getInvoices();
+    const invoices = await this.getInvoices(userId);
     const invoice = invoices.find(inv => inv.id === id);
     
     if (invoice) {
@@ -49,11 +49,11 @@ export class InvoiceService {
     }
     
     // Delete from Supabase (this also handles file cleanup)
-    return SupabaseInvoiceService.deleteInvoice(id);
+    return SupabaseInvoiceService.deleteInvoice(id, userId);
   }
 
-  static async updateInvoice(id: string, formData: InvoiceFormData): Promise<Invoice> {
-    return SupabaseInvoiceService.updateInvoice(id, formData);
+  static async updateInvoice(id: string, formData: InvoiceFormData, userId: string): Promise<Invoice> {
+    return SupabaseInvoiceService.updateInvoice(id, formData, userId);
   }
 
   static getFileUrl(fileId: string): string {

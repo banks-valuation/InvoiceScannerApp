@@ -76,12 +76,14 @@ export class SupabaseInvoiceService {
   }
 
   static async updateInvoice(id: string, formData: InvoiceFormData): Promise<Invoice> {
+  static async updateInvoice(id: string, formData: InvoiceFormData, userId: string): Promise<Invoice> {
     try {
       // Get existing invoice to check for file changes
       const { data: existingInvoice, error: fetchError } = await supabase
         .from('invoices')
         .select('*')
         .eq('id', id)
+        .eq('user_id', userId)
         .single();
 
       if (fetchError) {
@@ -117,6 +119,7 @@ export class SupabaseInvoiceService {
           file_type: fileType,
         })
         .eq('id', id)
+        .eq('user_id', userId)
         .select()
         .single();
 
@@ -132,12 +135,14 @@ export class SupabaseInvoiceService {
   }
 
   static async deleteInvoice(id: string): Promise<void> {
+  static async deleteInvoice(id: string, userId: string): Promise<void> {
     try {
       // Get invoice to access file URL for deletion
       const { data: invoice, error: fetchError } = await supabase
         .from('invoices')
         .select('file_url')
         .eq('id', id)
+        .eq('user_id', userId)
         .single();
 
       if (fetchError) {
@@ -153,7 +158,8 @@ export class SupabaseInvoiceService {
       const { error } = await supabase
         .from('invoices')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', userId);
 
       if (error) {
         throw new Error(`Failed to delete invoice: ${error.message}`);

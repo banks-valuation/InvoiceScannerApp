@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AuthProvider } from './components/AuthProvider';
+import { useAuth } from './components/AuthProvider';
 import { InvoiceList } from './components/InvoiceList';
 import { InvoiceForm } from './components/InvoiceForm';
 import { SettingsPage } from './components/SettingsPage';
@@ -12,6 +12,7 @@ import { InvoiceFormData, Invoice } from './types/invoice';
 type AppView = 'list' | 'add' | 'edit' | 'settings';
 
 function App() {
+  const { user } = useAuth();
   const [currentView, setCurrentView] = useState<AppView>('list');
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,12 +43,21 @@ function App() {
   };
 
   const handleSubmitInvoice = async (formData: InvoiceFormData) => {
+    if (!user) {
+      alertModal.showAlert({
+        title: 'Authentication Required',
+        message: 'You must be logged in to save invoices.',
+        type: 'error'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let savedInvoice: Invoice;
       
       if (editingInvoice) {
-        savedInvoice = await InvoiceService.updateInvoice(editingInvoice.id, formData);
+        savedInvoice = await InvoiceService.updateInvoice(editingInvoice.id, formData, user.id);
         console.log('Invoice updated:', savedInvoice);
         
         // If the invoice was previously synced to OneDrive/Excel, resync the changes
@@ -61,7 +71,7 @@ function App() {
           }
         }
       } else {
-        savedInvoice = await InvoiceService.createInvoice(formData);
+        savedInvoice = await InvoiceService.createInvoice(formData, user.id);
         console.log('Invoice created:', savedInvoice);
       }
       
@@ -113,19 +123,17 @@ function App() {
   };
 
   return (
-    <AuthProvider>
-      <AppContent
-        currentView={currentView}
-        editingInvoice={editingInvoice}
-        isSubmitting={isSubmitting}
-        alertModal={alertModal}
-        onAddInvoice={handleAddInvoice}
-        onEditInvoice={handleEditInvoice}
-        onShowSettings={handleShowSettings}
-        onBackToList={handleBackToList}
-        onSubmitInvoice={handleSubmitInvoice}
-      />
-    </AuthProvider>
+    <AppContent
+      currentView={currentView}
+      editingInvoice={editingInvoice}
+      isSubmitting={isSubmitting}
+      alertModal={alertModal}
+      onAddInvoice={handleAddInvoice}
+      onEditInvoice={handleEditInvoice}
+      onShowSettings={handleShowSettings}
+      onBackToList={handleBackToList}
+      onSubmitInvoice={handleSubmitInvoice}
+    />
   );
 }
 

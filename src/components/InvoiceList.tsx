@@ -28,8 +28,10 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   const alertModal = useAlertModal();
 
   useEffect(() => {
-    loadInvoices();
-  }, []);
+    if (user) {
+      loadInvoices();
+    }
+  }, [user]);
 
    // Listen for invoice updates from background sync
    useEffect(() => {
@@ -73,10 +75,16 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   }, [filteredInvoices]);
 
   const loadInvoices = async () => {
+    if (!user) {
+      console.log('No user available, skipping invoice load');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       console.log('Starting to load invoices...');
-      const data = await InvoiceService.getInvoices();
+      const data = await InvoiceService.getInvoices(user.id);
       console.log('Loaded invoices:', data.length);
       setInvoices(data);
     } catch (error) {
@@ -223,7 +231,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
             await InvoiceService.deleteFile(invoice.file_url);
           }
           
-          await InvoiceService.deleteInvoice(id);
+          await InvoiceService.deleteInvoice(id, user!.id);
           setInvoices(prev => prev.filter(invoice => invoice.id !== id));
         } catch (error) {
           console.error('Error deleting invoice:', error);

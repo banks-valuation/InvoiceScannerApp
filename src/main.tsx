@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MicrosoftService } from './services/microsoftService';
+import { AuthProvider } from './components/AuthProvider';
 import { AuthCallback } from './components/AuthCallback';
 import App from './App.tsx';
 import './index.css';
@@ -20,11 +21,13 @@ MicrosoftService.configure({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="*" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="*" element={<App />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   </StrictMode>
 );
