@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
 import { AppSettings, DEFAULT_SETTINGS } from '../types/settings';
-import { MicrosoftService } from './microsoftService';
 
 export class SettingsService {
   private static readonly SETTINGS_KEY = 'app_settings'; // Keep for migration fallback
@@ -13,10 +12,10 @@ export class SettingsService {
     }
 
     try {
-      // For Microsoft auth, we need to use the Microsoft user ID
-      const msUserId = user?.id;
+      // Use Supabase user ID
+      const userId = user?.id;
       
-      if (!msUserId) {
+      if (!userId) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
@@ -27,7 +26,7 @@ export class SettingsService {
       const dbPromise = supabase
         .from('user_settings')
         .select('settings')
-        .eq('ms_user_id', msUserId)
+        .eq('user_id', userId)
         .maybeSingle()
         .then(result => ({ result, timeout: false }))
         .catch(err => ({ error: err, timeout: false }));
@@ -104,31 +103,22 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      const currentUser = MicrosoftService.getCurrentUser();
+      // Get current Supabase user
+      const { supabase } = await import('../lib/supabaseClient');
+      const { data: { user } } = await supabase.auth.getUser();
       
-      if (!currentUser) {
+      if (!user) {
         this.saveLocalSettings(settings);
         return;
       }
 
-      // Set the Microsoft user ID in the session for RLS
-      await supabase.rpc('set_ms_user_id', { ms_user_id: currentUser.id });
-
-      // First, try to find existing settings by ms_user_id
-      const { data: existingSettings } = await supabase
-        .from('user_settings')
-        .select('id, user_id')
-        .eq('ms_user_id', currentUser.id)
-        .maybeSingle();
-
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: existingSettings?.user_id || currentUser.id, // Use existing user_id or fallback to ms_user_id
-          ms_user_id: currentUser.id,
+          user_id: user.id,
           settings: settings,
         }, {
-          onConflict: 'ms_user_id'
+          onConflict: 'user_id'
         });
 
       if (error) {
@@ -148,15 +138,15 @@ export class SettingsService {
 
   static async resetSettings(): Promise<void> {
     try {
-      // Get current Microsoft user
-      const { MicrosoftService } = await import('./microsoftService');
-      const currentUser = MicrosoftService.getCurrentUser();
+      // Get current Supabase user
+      const { supabase } = await import('../lib/supabaseClient');
+      const { data: { user } } = await supabase.auth.getUser();
 
-      if (currentUser) {
+      if (user) {
         const { error } = await supabase
           .from('user_settings')
           .delete()
-          .eq('ms_user_id', currentUser.id);
+          .eq('user_id', user.id);
 
         if (error) {
           console.error('Error deleting settings from database:', error);

@@ -4,19 +4,11 @@ import { MicrosoftService, OneDriveUploadResult } from './microsoftService';
 
 export class InvoiceService {
   static async createInvoice(formData: InvoiceFormData, userId: string): Promise<Invoice> {
-    // For Microsoft users, use their MS ID as the userId
-    const msUser = MicrosoftService.getCurrentUser();
-    const effectiveUserId = msUser?.id || userId;
-    
-    return SupabaseInvoiceService.createInvoice(formData, effectiveUserId);
+    return SupabaseInvoiceService.createInvoice(formData, userId);
   }
 
   static async getInvoices(userId: string): Promise<Invoice[]> {
-    // For Microsoft users, use their MS ID as the userId
-    const msUser = MicrosoftService.getCurrentUser();
-    const effectiveUserId = msUser?.id || userId;
-    
-    return SupabaseInvoiceService.getInvoices(effectiveUserId);
+    return SupabaseInvoiceService.getInvoices(userId);
   }
 
   static async deleteInvoice(id: string, userId: string): Promise<void> {
