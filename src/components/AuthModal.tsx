@@ -5,10 +5,9 @@ import { MicrosoftService } from '../services/microsoftService';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAuthSuccess: () => void;
 }
 
-export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,12 +16,14 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
     setLoading(true);
 
     try {
+      console.log('AuthModal: Initiating Microsoft login...');
       MicrosoftService.initiateLogin();
     } catch (error) {
       console.error('Microsoft login error:', error);
       setError(error instanceof Error ? error.message : 'Microsoft login failed');
-    } finally {
       setLoading(false);
+    } finally {
+      // Don't set loading to false here as we're redirecting to Microsoft
     }
   };
 

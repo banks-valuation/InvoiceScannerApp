@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MicrosoftService } from '../services/microsoftService';
-import { useAuth } from './AuthProvider';
 import { AlertModal } from './Modal';
 import { useAlertModal } from '../hooks/useModal';
 
 export function AuthCallback() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const alertModal = useAlertModal();
   
   useEffect(() => {
@@ -39,7 +37,7 @@ export function AuthCallback() {
           message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nPlease try signing in again.`,
           type: 'error'
         });
-        navigate('/');
+        setTimeout(() => navigate('/'), 2000);
         return;
       }
 
@@ -50,23 +48,26 @@ export function AuthCallback() {
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
           
-          // Trigger auth success in AuthProvider
-          window.dispatchEvent(new CustomEvent('microsoftAuthSuccess'));
+          // Fetch user profile to complete authentication
+          await MicrosoftService.fetchUserProfile();
+          console.log('User profile fetched successfully');
           
           alertModal.showAlert({
             title: 'Welcome!',
-            message: 'Successfully signed in with Microsoft! Your invoices will automatically sync to OneDrive and Excel.',
+            message: 'Successfully signed in with Microsoft!',
             type: 'success'
           });
-          navigate('/');
+          
+          // Navigate after a short delay to show the success message
+          setTimeout(() => navigate('/'), 1500);
         } catch (error) {
           console.error('Authorization code processing failed:', error);
           alertModal.showAlert({
-            title: 'OneDrive Connection Failed',
+            title: 'Sign In Failed',
             message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
             type: 'error'
           });
-          navigate('/');
+          setTimeout(() => navigate('/'), 2000);
         }
       } else if (accessToken) {
         // Legacy implicit flow
@@ -75,15 +76,18 @@ export function AuthCallback() {
           await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
           console.log('Authentication successful!');
           
-          // Trigger auth success in AuthProvider
-          window.dispatchEvent(new CustomEvent('microsoftAuthSuccess'));
+          // Fetch user profile to complete authentication
+          await MicrosoftService.fetchUserProfile();
+          console.log('User profile fetched successfully');
           
           alertModal.showAlert({
             title: 'Welcome!',
-            message: 'Successfully signed in with Microsoft! Your invoices will automatically sync to OneDrive and Excel.',
+            message: 'Successfully signed in with Microsoft!',
             type: 'success'
           });
-          navigate('/');
+          
+          // Navigate after a short delay to show the success message
+          setTimeout(() => navigate('/'), 1500);
         } catch (error) {
           console.error('Token processing failed:', error);
           alertModal.showAlert({
@@ -91,7 +95,7 @@ export function AuthCallback() {
             message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
             type: 'error'
           });
-          navigate('/');
+          setTimeout(() => navigate('/'), 2000);
         }
       } else {
         console.log('No authorization code or access token found, redirecting to home');
@@ -100,7 +104,7 @@ export function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate, user]);
+  }, [navigate, alertModal]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

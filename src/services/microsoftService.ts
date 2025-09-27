@@ -118,6 +118,8 @@ export class MicrosoftService {
         console.error('Token exchange failed:', errorText);
         throw new Error(`Token exchange failed: ${response.statusText}`);
       }
+      console.log('MicrosoftService: Tokens stored successfully');
+      
 
       const tokenData = await response.json();
       

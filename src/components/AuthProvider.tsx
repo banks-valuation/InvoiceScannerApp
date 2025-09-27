@@ -38,11 +38,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Check if user is already authenticated with Microsoft
     const checkAuth = async () => {
-      setLoading(false);
+      console.log('AuthProvider: Checking authentication status...');
       
       if (MicrosoftService.isAuthenticated()) {
+        console.log('AuthProvider: User is authenticated, fetching profile...');
         const profile = MicrosoftService.getCurrentUser();
         if (profile) {
+          console.log('AuthProvider: Profile found in cache:', profile.displayName);
           setUser({
             id: profile.id,
             displayName: profile.displayName,
@@ -53,7 +55,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           // Try to fetch profile if authenticated but no profile cached
           try {
+            console.log('AuthProvider: Fetching profile from Microsoft Graph...');
             const fetchedProfile = await MicrosoftService.fetchUserProfile();
+            console.log('AuthProvider: Profile fetched successfully:', fetchedProfile.displayName);
             setUser({
               id: fetchedProfile.id,
               displayName: fetchedProfile.displayName,
@@ -68,40 +72,73 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
       } else {
+        console.log('AuthProvider: User not authenticated, showing auth modal');
         setUser(null);
         setShowAuthModal(true);
       }
+      
+      setLoading(false);
     };
 
     checkAuth();
   }, []);
 
-  // Handle successful Microsoft authentication
-  const handleAuthSuccess = async () => {
-    try {
-      const profile = await MicrosoftService.fetchUserProfile();
-      setUser({
-        id: profile.id,
-        displayName: profile.displayName,
-        email: profile.mail,
-        userPrincipalName: profile.userPrincipalName,
-      });
-      setShowAuthModal(false);
+  // Listen for successful authentication from callback
+  useEffect(() => {
+    const handleAuthSuccess = async () => {
+      console.log('AuthProvider: Received auth success event, checking status...');
       
-      // Clear settings cache and reload when user signs in
-      SettingsService.clearCache();
-      try {
-        // Preload settings from database to sync with other devices
-        await SettingsService.getSettings({ id: profile.id });
-      } catch (error) {
-        console.error('Failed to reload settings after login:', error);
+      if (MicrosoftService.isAuthenticated()) {
+        try {
+          const profile = await MicrosoftService.fetchUserProfile();
+          console.log('AuthProvider: Setting user profile:', profile.displayName);
+          setUser({
+            id: profile.id,
+            displayName: profile.displayName,
+            email: profile.mail,
+            userPrincipalName: profile.userPrincipalName,
+          });
+          setShowAuthModal(false);
+          
+          // Clear settings cache and reload when user signs in
+          SettingsService.clearCache();
+          try {
+            // Preload settings from database to sync with other devices
+            await SettingsService.getSettings({ id: profile.id });
+          } catch (error) {
+            console.error('Failed to reload settings after login:', error);
+          }
+        } catch (error) {
+          console.error('Failed to handle auth success:', error);
+          setUser(null);
+          setShowAuthModal(true);
+        }
       }
-    } catch (error) {
-      console.error('Failed to handle auth success:', error);
-      setUser(null);
-      setShowAuthModal(true);
-    }
-  };
+    };
+
+    // Listen for page visibility changes (when user returns from Microsoft auth)
+    const handleVisibilityChange = () => {
+      if (!document.hidden && !user && MicrosoftService.isAuthenticated()) {
+        console.log('AuthProvider: Page became visible and user authenticated, updating state...');
+        handleAuthSuccess();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also check periodically in case the callback didn't trigger properly
+    const interval = setInterval(() => {
+      if (!user && MicrosoftService.isAuthenticated()) {
+        console.log('AuthProvider: Periodic check found authenticated user, updating state...');
+        handleAuthSuccess();
+      }
+    }, 1000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
+    };
+  }, [user]);
 
   const signOut = async () => {
     // Clear settings cache when signing out
@@ -135,11 +172,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-        onAuthSuccess={handleAuthSuccess}
-      />
+      {showAuthModal && (
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      )}
     </AuthContext.Provider>
   );
 }
