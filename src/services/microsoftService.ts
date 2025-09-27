@@ -1,5 +1,6 @@
 import { Invoice } from '../types/invoice';
 import { SettingsService } from './settingsService';
+import * as ExcelJS from 'exceljs';
 
 export interface OneDriveUploadResult {
   success: boolean;
@@ -679,19 +680,42 @@ export class MicrosoftService {
   }
 
   private static createExcelTemplate(): ArrayBuffer {
-    // This is a simplified Excel creation - in a real implementation,
-    // you might want to use a library like ExcelJS
-    const headers = ['ID', 'Customer Name', 'Date', 'Description', 'Amount', 'File Link', 'Filename', 'Date Added'];
-    
-    // For now, we'll create a simple CSV-like content
-    // In a real implementation, you'd create proper Excel binary format
-    const csvContent = headers.join(',') + '\n';
-    const encoder = new TextEncoder();
-    return encoder.encode(csvContent).buffer;
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Sheet1');
+      
+      // Add headers
+      const headers = ['ID', 'Customer Name', 'Date', 'Description', 'Amount', 'File Link', 'Filename', 'Date Added'];
+      worksheet.addRow(headers);
+      
+      // Style the header row
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' }
+      };
+      
+      // Auto-fit columns
+      worksheet.columns.forEach((column, index) => {
+        column.width = Math.max(headers[index].length + 2, 15);
+      });
+      
+      // Generate buffer
+      const buffer = await workbook.xlsx.writeBuffer();
+      return buffer as ArrayBuffer;
+    } catch (error) {
+      console.error('Error creating Excel template:', error);
+      throw error;
+    }
   }
 
   private static async createExcelTable(fileName: string): Promise<void> {
     try {
+      // Wait a bit longer for the file to be processed by Microsoft
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
       const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/workbook/worksheets('Sheet1')/tables/add`, {
         method: 'POST',
         headers: {
@@ -705,7 +729,8 @@ export class MicrosoftService {
       });
 
       if (!response.ok) {
-        console.warn('Failed to create Excel table, continuing anyway');
+        const errorText = await response.text();
+        console.warn('Failed to create Excel table:', response.status, errorText);
       }
     } catch (error) {
       console.warn('Error creating Excel table:', error);
