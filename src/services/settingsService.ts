@@ -12,7 +12,7 @@ export class SettingsService {
     }
 
     try {
-      // Use Supabase user ID
+      // For Microsoft auth, we need to use the user ID from the Microsoft profile
       const userId = user?.id;
       
       if (!userId) {
@@ -103,11 +103,11 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      // Get current Supabase user
-      const { supabase } = await import('../lib/supabaseClient');
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get current Microsoft user
+      const { MicrosoftService } = await import('./microsoftService');
+      const currentUser = MicrosoftService.getCurrentUser();
       
-      if (!user) {
+      if (!currentUser) {
         this.saveLocalSettings(settings);
         return;
       }
@@ -115,7 +115,7 @@ export class SettingsService {
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: user.id,
+          user_id: currentUser.id,
           settings: settings,
         }, {
           onConflict: 'user_id'
@@ -138,15 +138,15 @@ export class SettingsService {
 
   static async resetSettings(): Promise<void> {
     try {
-      // Get current Supabase user
-      const { supabase } = await import('../lib/supabaseClient');
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get current Microsoft user
+      const { MicrosoftService } = await import('./microsoftService');
+      const currentUser = MicrosoftService.getCurrentUser();
 
-      if (user) {
+      if (currentUser) {
         const { error } = await supabase
           .from('user_settings')
           .delete()
-          .eq('user_id', user.id);
+          .eq('user_id', currentUser.id);
 
         if (error) {
           console.error('Error deleting settings from database:', error);
