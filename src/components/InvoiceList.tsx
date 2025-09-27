@@ -553,6 +553,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
                                   onEdit={onEditInvoice}
                                   onDelete={handleDelete}
                                   onInvoiceUpdate={handleInvoiceUpdate}
+                                  userId={user!.id}
                                 />
                               ))}
                             </div>

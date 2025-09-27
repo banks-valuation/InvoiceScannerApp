@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { FileText, Image, Trash2, Edit3, Upload, CheckCircle, AlertCircle, Cloud, RefreshCw } from 'lucide-react';
+import { FileText, Image, Trash2, CreditCard as Edit3, Upload, CheckCircle, AlertCircle, Cloud, RefreshCw } from 'lucide-react';
 import { AlertModal } from './Modal';
 import { useAlertModal } from '../hooks/useModal';
 import { Invoice } from '../types/invoice';
