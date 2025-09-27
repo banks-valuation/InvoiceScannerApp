@@ -465,13 +465,16 @@ export class MicrosoftService {
         },
       });
 
-      let tableId = 'Table1';
-      if (workbookResponse.ok) {
-        const tables = await workbookResponse.json();
-        if (tables.value && tables.value.length > 0) {
-          tableId = tables.value[0].id;
-        }
+      if (!workbookResponse.ok) {
+        throw new Error(`Failed to get Excel tables: ${workbookResponse.status}`);
       }
+
+      const tables = await workbookResponse.json();
+      if (!tables.value || tables.value.length === 0) {
+        throw new Error('No Excel tables found. Please ensure the Excel file has a proper table structure.');
+      }
+
+      const tableId = tables.value[0].id;
 
       // Get all rows to find the one to update
       const rowsResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${excelFileName}:/workbook/tables/${tableId}/rows`, {
@@ -549,13 +552,16 @@ export class MicrosoftService {
         },
       });
 
-      let tableId = 'Table1';
-      if (workbookResponse.ok) {
-        const tables = await workbookResponse.json();
-        if (tables.value && tables.value.length > 0) {
-          tableId = tables.value[0].id;
-        }
+      if (!workbookResponse.ok) {
+        return { success: false, error: `Failed to get Excel tables: ${workbookResponse.status}` };
       }
+
+      const tables = await workbookResponse.json();
+      if (!tables.value || tables.value.length === 0) {
+        return { success: false, error: 'No Excel tables found. Please ensure the Excel file has a proper table structure.' };
+      }
+
+      const tableId = tables.value[0].id;
 
       // Get all rows to find the one to delete
       const rowsResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${excelFileName}:/workbook/tables/${tableId}/rows`, {
@@ -669,8 +675,8 @@ export class MicrosoftService {
       // Wait a moment for the file to be processed
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Create table with headers
-      await this.createExcelTable(fileName);
+      // Ensure table exists with headers
+      await this.ensureTableInExistingExcelFile(fileName);
       
       console.log('Excel file created successfully');
     } catch (error) {
@@ -730,13 +736,59 @@ export class MicrosoftService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.warn('Failed to create Excel table:', response.status, errorText);
+        throw new Error(`Failed to create Excel table: ${response.status} ${errorText}`);
       }
     } catch (error) {
-      console.warn('Error creating Excel table:', error);
+      console.error('Error creating Excel table:', error);
+      throw error;
     }
   }
 
+  private static async ensureTableInExistingExcelFile(fileName: string): Promise<string> {
+    try {
+      // Check if tables exist
+      const tablesResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/workbook/worksheets('Sheet1')/tables`, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!tablesResponse.ok) {
+        throw new Error(`Failed to check tables: ${tablesResponse.status}`);
+      }
+
+      const tablesData = await tablesResponse.json();
+      
+      if (tablesData.value && tablesData.value.length > 0) {
+        return tablesData.value[0].id;
+      }
+
+      // No tables found, create one
+      console.log('No tables found, creating table...');
+      await this.createExcelTable(fileName);
+      
+      // Verify table was created
+      const verifyResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/workbook/worksheets('Sheet1')/tables`, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!verifyResponse.ok) {
+        throw new Error(`Failed to verify table creation: ${verifyResponse.status}`);
+      }
+
+      const verifyData = await verifyResponse.json();
+      if (!verifyData.value || verifyData.value.length === 0) {
+        throw new Error('Table creation failed - no tables found after creation');
+      }
+
+      return verifyData.value[0].id;
+    } catch (error) {
+      console.error('Error ensuring table in existing Excel file:', error);
+      throw error;
+    }
+  }
   // Folder and file browsing methods
   static async listFolders(path: string = ''): Promise<Array<{ name: string; path: string }>> {
     try {
