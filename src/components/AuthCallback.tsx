@@ -13,13 +13,23 @@ export function AuthCallback() {
       console.log('AuthCallback: Starting callback handling');
       console.log('Current URL:', window.location.href);
       
-      // For implicit flow, tokens are in the URL fragment (hash)
-      const urlParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = urlParams.get('access_token');
+      // Check for authorization code (new flow) or access token (legacy flow)
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
 
-      console.log('URL params:', { accessToken: accessToken ? 'present' : 'missing', error, errorDescription });
+      // Also check hash for legacy implicit flow
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+
+      console.log('URL params:', { 
+        code: code ? 'present' : 'missing', 
+        accessToken: accessToken ? 'present' : 'missing', 
+        error, 
+        errorDescription 
+      });
+      
       if (error) {
         console.error('Authentication error:', error, errorDescription);
         alertModal.showAlert({
@@ -31,10 +41,32 @@ export function AuthCallback() {
         return;
       }
 
-      if (accessToken) {
+      if (code) {
+        // New authorization code flow
+        try {
+          console.log('Processing authorization code...');
+          await MicrosoftService.handleAuthorizationCallback(code);
+          console.log('Authentication successful!');
+          alertModal.showAlert({
+            title: 'Connection Successful',
+            message: 'Successfully connected to Microsoft OneDrive! You can now upload invoices to OneDrive and sync them to Excel.',
+            type: 'success'
+          });
+          navigate('/');
+        } catch (error) {
+          console.error('Authorization code processing failed:', error);
+          alertModal.showAlert({
+            title: 'Authentication Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+            type: 'error'
+          });
+          navigate('/');
+        }
+      } else if (accessToken) {
+        // Legacy implicit flow
         try {
           console.log('Processing access token...');
-          await MicrosoftService.handleImplicitCallback(accessToken, urlParams);
+          await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
           console.log('Authentication successful!');
           alertModal.showAlert({
             title: 'Connection Successful',
@@ -52,8 +84,7 @@ export function AuthCallback() {
           navigate('/');
         }
       } else {
-        console.log('No access token or error found, redirecting to home');
-        // No token or error, redirect back
+        console.log('No authorization code or access token found, redirecting to home');
         navigate('/');
       }
     };

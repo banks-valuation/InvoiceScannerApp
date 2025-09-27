@@ -43,14 +43,16 @@ export class MicrosoftService {
       redirectUri: this.config.redirectUri
     });
 
-    // Construct Microsoft authorization URL for implicit flow
+    // Construct Microsoft authorization URL for authorization code flow
     const authUrl = new URL(`https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/authorize`);
     authUrl.searchParams.set('client_id', this.config.clientId);
-    authUrl.searchParams.set('response_type', 'token');
+    authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('redirect_uri', this.config.redirectUri);
     authUrl.searchParams.set('scope', this.config.scopes.join(' '));
-    authUrl.searchParams.set('response_mode', 'fragment');
+    authUrl.searchParams.set('response_mode', 'query');
     authUrl.searchParams.set('state', Math.random().toString(36).substring(2, 15));
+    authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('prompt', 'consent');
 
     console.log('Redirecting to Microsoft authentication:', authUrl.toString());
     
@@ -58,9 +60,78 @@ export class MicrosoftService {
     window.location.href = authUrl.toString();
   }
 
-  // Handle implicit flow callback
-  static handleImplicitCallback(accessToken: string, urlParams: URLSearchParams): void {
-    console.log('Processing implicit flow callback');
+  // Handle authorization code flow callback
+  static async handleAuthorizationCallback(code: string): Promise<void> {
+    console.log('Processing authorization code flow callback');
+    
+    if (!this.config) {
+      throw new Error('Microsoft service not configured');
+    }
+
+    if (!code) {
+      throw new Error('No authorization code received');
+    }
+
+    try {
+      // Exchange authorization code for tokens
+      const tokenUrl = `https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/token`;
+      
+      const body = new URLSearchParams({
+        client_id: this.config.clientId,
+        scope: this.config.scopes.join(' '),
+        code: code,
+        redirect_uri: this.config.redirectUri,
+        grant_type: 'authorization_code',
+      });
+
+      const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body.toString(),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Token exchange failed:', errorText);
+        throw new Error(`Token exchange failed: ${response.statusText}`);
+      }
+
+      const tokenData = await response.json();
+      
+      // Store tokens
+      this.accessToken = tokenData.access_token;
+      this.refreshToken = tokenData.refresh_token;
+      
+      console.log('Token information:', {
+        hasAccessToken: !!tokenData.access_token,
+        hasRefreshToken: !!tokenData.refresh_token,
+        expiresIn: tokenData.expires_in,
+        scope: tokenData.scope
+      });
+
+      localStorage.setItem('ms_access_token', tokenData.access_token);
+      if (tokenData.refresh_token) {
+        localStorage.setItem('ms_refresh_token', tokenData.refresh_token);
+      }
+      
+      if (tokenData.expires_in) {
+        const expirationTime = Date.now() + (tokenData.expires_in * 1000);
+        localStorage.setItem('ms_token_expires', expirationTime.toString());
+        console.log('Token expires at:', new Date(expirationTime).toISOString());
+      }
+      
+      console.log('Tokens stored successfully');
+    } catch (error) {
+      console.error('Token exchange error:', error);
+      throw error;
+    }
+  }
+
+  // Handle implicit flow callback (keep for backward compatibility)
+  static async handleImplicitCallback(accessToken: string, urlParams: URLSearchParams): Promise<void> {
+    console.log('Processing implicit flow callback (deprecated)');
     
     // Check for errors
     const error = urlParams.get('error');
@@ -179,20 +250,26 @@ export class MicrosoftService {
       throw new Error('Microsoft service not configured.');
     }
 
-    // Use the same logic as isAuthenticated()
-    if (this.isAuthenticated()) {
+    // Check if current token is valid
+    const tokenStatus = this.checkTokenValidity();
+    if (tokenStatus.isValid) {
       return true;
     }
 
-    // Try to refresh token
+    // If token is expired but we have a refresh token, try to refresh
     if (this.refreshToken) {
+      console.log('Access token expired, attempting refresh...');
       const refreshed = await this.refreshAccessToken();
       if (refreshed) {
+        console.log('Token refreshed successfully');
         return true;
+      } else {
+        console.log('Token refresh failed, clearing stored tokens');
+        this.logout();
       }
     }
 
-    // Need to re-authenticate
+    console.log('No valid token available, re-authentication required');
     return false;
   }
 
