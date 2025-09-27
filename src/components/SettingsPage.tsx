@@ -319,9 +319,25 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                  <span className="font-medium text-gray-900">
-                    {isAuthenticated ? 'Connected to Microsoft OneDrive' : 'Not connected'}
-                  </span>
+                  <div>
+                    <span className="font-medium text-gray-900">
+                      {isAuthenticated ? 'Connected to Microsoft OneDrive' : 'Not connected'}
+                    </span>
+                    {isAuthenticated && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {(() => {
+                          const tokenStatus = MicrosoftService.checkTokenValidity();
+                          if (tokenStatus.expiresAt) {
+                            const hoursRemaining = Math.floor((tokenStatus.timeRemaining || 0) / (1000 * 60 * 60));
+                            return hoursRemaining > 0 
+                              ? `Token expires in ${hoursRemaining} hours`
+                              : 'Token will refresh automatically';
+                          }
+                          return 'Persistent login active';
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {isAuthenticated ? (
                   <button
