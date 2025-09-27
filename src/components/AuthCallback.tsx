@@ -7,9 +7,11 @@ import { useAlertModal } from '../hooks/useModal';
 export function AuthCallback() {
   const navigate = useNavigate();
   const alertModal = useAlertModal();
+  const [isProcessing, setIsProcessing] = useState(true);
   
   useEffect(() => {
     const handleCallback = async () => {
+      setIsProcessing(true);
       console.log('AuthCallback: Starting callback handling');
       console.log('Current URL:', window.location.href);
       
@@ -37,7 +39,11 @@ export function AuthCallback() {
           message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nYou can manually connect to OneDrive later from the Settings page.`,
           type: 'error'
         });
-        navigate('/');
+        // Add a delay before navigating to ensure the alert is shown
+        setTimeout(() => {
+          setIsProcessing(false);
+          navigate('/');
+        }, 2000);
         return;
       }
 
@@ -52,7 +58,11 @@ export function AuthCallback() {
             message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
             type: 'success'
           });
-          navigate('/');
+          // Add a delay before navigating to show the success message
+          setTimeout(() => {
+            setIsProcessing(false);
+            navigate('/');
+          }, 2000);
         } catch (error) {
           console.error('Authorization code processing failed:', error);
           alertModal.showAlert({
@@ -60,7 +70,10 @@ export function AuthCallback() {
             message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
             type: 'error'
           });
-          navigate('/');
+          setTimeout(() => {
+            setIsProcessing(false);
+            navigate('/');
+          }, 2000);
         }
       } else if (accessToken) {
         // Legacy implicit flow
@@ -73,7 +86,10 @@ export function AuthCallback() {
             message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
             type: 'success'
           });
-          navigate('/');
+          setTimeout(() => {
+            setIsProcessing(false);
+            navigate('/');
+          }, 2000);
         } catch (error) {
           console.error('Token processing failed:', error);
           alertModal.showAlert({
@@ -81,10 +97,14 @@ export function AuthCallback() {
             message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
             type: 'error'
           });
-          navigate('/');
+          setTimeout(() => {
+            setIsProcessing(false);
+            navigate('/');
+          }, 2000);
         }
       } else {
         console.log('No authorization code or access token found, redirecting to home');
+        setIsProcessing(false);
         navigate('/');
       }
     };
@@ -95,9 +115,18 @@ export function AuthCallback() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Connecting to OneDrive...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we set up your cloud storage</p>
+        {isProcessing ? (
+          <>
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Connecting to OneDrive...</p>
+            <p className="text-sm text-gray-500 mt-2">Please wait while we set up your cloud storage</p>
+          </>
+        ) : (
+          <>
+            <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Redirecting...</p>
+          </>
+        )}
       </div>
       
       {/* Alert Modal */}

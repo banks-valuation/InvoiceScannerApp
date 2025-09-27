@@ -31,7 +31,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isHandlingMicrosoftCallback, setIsHandlingMicrosoftCallback] = useState(false);
   const [hasTriedAutoConnect, setHasTriedAutoConnect] = useState(false);
+
+  // Check if we're currently handling a Microsoft callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isCallback = window.location.pathname === '/auth/callback' || 
+                      urlParams.has('code') || 
+                      urlParams.has('access_token');
+    setIsHandlingMicrosoftCallback(isCallback);
+  }, []);
 
   useEffect(() => {
     // Get initial session
@@ -41,8 +51,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Show auth modal if no session
-        if (!session) {
+        // Show auth modal if no session and not handling Microsoft callback
+        if (!session && !isHandlingMicrosoftCallback) {
           setShowAuthModal(true);
         }
       })
@@ -91,8 +101,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       }
       
-      // Show/hide auth modal based on session
-      setShowAuthModal(!session);
+      // Show/hide auth modal based on session and callback status
+      setShowAuthModal(!session && !isHandlingMicrosoftCallback);
       
       // Reset auto-connect flag when user signs out
       if (event === 'SIGNED_OUT') {
@@ -101,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isHandlingMicrosoftCallback]);
 
   const signOut = async () => {
     // Clear settings cache when signing out
@@ -148,7 +158,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider value={value}>
       {children}
       <AuthModal 
-        isOpen={showAuthModal} 
+        isOpen={showAuthModal && !isHandlingMicrosoftCallback} 
         onClose={() => setShowAuthModal(false)} 
       />
     </AuthContext.Provider>
