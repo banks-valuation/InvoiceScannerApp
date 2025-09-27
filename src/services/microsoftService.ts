@@ -79,8 +79,8 @@ export class MicrosoftService {
 
     // Generate state parameter for security
     const state = Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('ms_auth_state', state);
-    sessionStorage.setItem('ms_auth_state', state);
+    localStorage.setItem('ms_pkce_state', state);
+    sessionStorage.setItem('ms_pkce_state', state);
 
     const authUrl = new URL('https://login.microsoftonline.com/' + this.config.tenantId + '/oauth2/v2.0/authorize');
     
@@ -118,6 +118,8 @@ export class MicrosoftService {
     
     let storedState = localStorage.getItem('ms_auth_state') || 
                      sessionStorage.getItem('ms_auth_state');
+    let storedState = localStorage.getItem('ms_pkce_state') || 
+                     sessionStorage.getItem('ms_pkce_state');
 
     console.log('Retrieved code verifier:', storedCodeVerifier ? storedCodeVerifier.substring(0, 10) + '...' : 'null');
     console.log('Retrieved state:', storedState ? 'present' : 'null');
@@ -178,9 +180,9 @@ export class MicrosoftService {
     // Clean up temporary storage from all locations
     localStorage.removeItem('ms_code_verifier');
     localStorage.removeItem('pkce_code_verifier');
-    localStorage.removeItem('ms_auth_state');
+    localStorage.removeItem('ms_pkce_state');
     sessionStorage.removeItem('ms_code_verifier');
-    sessionStorage.removeItem('ms_auth_state');
+    sessionStorage.removeItem('ms_pkce_state');
     this.codeVerifier = null;
 
     // Persist authentication state
