@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { Invoice, InvoiceFormData } from '../types/invoice';
+import { MicrosoftService } from './microsoftService';
 
 /**
  * SupabaseInvoiceService
@@ -13,6 +14,12 @@ export class SupabaseInvoiceService {
 
   static async createInvoice(formData: InvoiceFormData, userId: string): Promise<Invoice> {
     try {
+      // Set MS user context if Microsoft user is authenticated
+      const msUser = MicrosoftService.getCurrentUser();
+      if (msUser) {
+        await supabase.rpc('set_ms_user_id', { ms_user_id: msUser.id });
+      }
+
       let fileUrl = '';
       let fileType: 'image' | 'pdf' = 'image';
 
@@ -28,6 +35,7 @@ export class SupabaseInvoiceService {
         .from('invoices')
         .insert([{
           user_id: userId,
+          ms_user_id: msUser?.id || null,
           customer_name: formData.customer_name,
           invoice_date: formData.invoice_date,
           invoice_amount: parseFloat(formData.invoice_amount),
@@ -52,16 +60,56 @@ export class SupabaseInvoiceService {
 
   static async getInvoices(userId: string): Promise<Invoice[]> {
     try {
+      // Set MS user context if Microsoft user is authenticated
+      const msUser = MicrosoftService.getCurrentUser();
+      if (msUser) {
+        await supabase.rpc('set_ms_user_id', { ms_user_id: msUser.id });
+      }
+
       console.log('Fetching invoices from Supabase... userId: ' + userId);
 
       console.time("query");
       
-      // First try to get invoices by user_id (for existing data)
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+      // Try to get invoices by ms_user_id first, then fallback to user_id
+      let data, error;
+      
+      if (msUser) {
+        // For Microsoft users, try ms_user_id first
+        const msResult = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('ms_user_id', msUser.id)
+          .order('created_at', { ascending: false });
+          
+        if (msResult.error) {
+          console.error('MS user query error:', msResult.error);
+        }
+        
+        data = msResult.data;
+        error = msResult.error;
+        
+        // If no results with ms_user_id, try user_id as fallback
+        if (!error && (!data || data.length === 0)) {
+          const fallbackResult = await supabase
+            .from('invoices')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+            
+          data = fallbackResult.data;
+          error = fallbackResult.error;
+        }
+      } else {
+        // For regular users, use user_id
+        const result = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+          
+        data = result.data;
+        error = result.error;
+      }
       
       console.timeEnd("query");
 

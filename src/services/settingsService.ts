@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { AppSettings, DEFAULT_SETTINGS } from '../types/settings';
+import { MicrosoftService } from './microsoftService';
 
 export class SettingsService {
   private static readonly SETTINGS_KEY = 'app_settings'; // Keep for migration fallback
@@ -103,14 +104,15 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      // Get current Microsoft user
-      const { MicrosoftService } = await import('./microsoftService');
       const currentUser = MicrosoftService.getCurrentUser();
       
       if (!currentUser) {
         this.saveLocalSettings(settings);
         return;
       }
+
+      // Set the Microsoft user ID in the session for RLS
+      await supabase.rpc('set_ms_user_id', { ms_user_id: currentUser.id });
 
       // First, try to find existing settings by ms_user_id
       const { data: existingSettings } = await supabase
