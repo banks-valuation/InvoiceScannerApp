@@ -71,7 +71,7 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
       
       if (result.success) {
         // Refresh the invoice data to show updated status
-        const updatedInvoices = await InvoiceService.getInvoices();
+        const updatedInvoices = await InvoiceService.getInvoices(userId);
         const updatedInvoice = updatedInvoices.find(inv => inv.id === invoice.id);
         if (updatedInvoice && onInvoiceUpdate) {
           onInvoiceUpdate(updatedInvoice);
@@ -108,7 +108,7 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
       
       if (result.success) {
         // Refresh the invoice data to show updated status
-        const updatedInvoices = await InvoiceService.getInvoices();
+        const updatedInvoices = await InvoiceService.getInvoices(userId);
         const updatedInvoice = updatedInvoices.find(inv => inv.id === invoice.id);
         if (updatedInvoice && onInvoiceUpdate) {
           onInvoiceUpdate(updatedInvoice);
