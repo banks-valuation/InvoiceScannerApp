@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MicrosoftService } from '../services/microsoftService';
+import { useAuth } from './AuthProvider';
 import { AlertModal } from './Modal';
 import { useAlertModal } from '../hooks/useModal';
 
 export function AuthCallback() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const alertModal = useAlertModal();
   
   useEffect(() => {
@@ -34,7 +36,7 @@ export function AuthCallback() {
         console.error('Authentication error:', error, errorDescription);
         alertModal.showAlert({
           title: 'Authentication Failed',
-          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nYou can manually connect to OneDrive later from the Settings page.`,
+          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nPlease try signing in again.`,
           type: 'error'
         });
         navigate('/');
@@ -47,9 +49,13 @@ export function AuthCallback() {
           console.log('Processing authorization code...');
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
+          
+          // Trigger auth success in AuthProvider
+          window.dispatchEvent(new CustomEvent('microsoftAuthSuccess'));
+          
           alertModal.showAlert({
-            title: 'OneDrive Connected!',
-            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
+            title: 'Welcome!',
+            message: 'Successfully signed in with Microsoft! Your invoices will automatically sync to OneDrive and Excel.',
             type: 'success'
           });
           navigate('/');
@@ -57,7 +63,7 @@ export function AuthCallback() {
           console.error('Authorization code processing failed:', error);
           alertModal.showAlert({
             title: 'OneDrive Connection Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
             type: 'error'
           });
           navigate('/');
@@ -68,17 +74,21 @@ export function AuthCallback() {
           console.log('Processing access token...');
           await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
           console.log('Authentication successful!');
+          
+          // Trigger auth success in AuthProvider
+          window.dispatchEvent(new CustomEvent('microsoftAuthSuccess'));
+          
           alertModal.showAlert({
-            title: 'OneDrive Connected!',
-            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
+            title: 'Welcome!',
+            message: 'Successfully signed in with Microsoft! Your invoices will automatically sync to OneDrive and Excel.',
             type: 'success'
           });
           navigate('/');
         } catch (error) {
           console.error('Token processing failed:', error);
           alertModal.showAlert({
-            title: 'OneDrive Connection Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
+            title: 'Sign In Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
             type: 'error'
           });
           navigate('/');
@@ -90,14 +100,14 @@ export function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, user]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Connecting to OneDrive...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we set up your cloud storage</p>
+        <p className="text-gray-600 font-medium">Signing you in...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we complete the authentication</p>
       </div>
       
       {/* Alert Modal */}

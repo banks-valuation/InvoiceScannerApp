@@ -14,21 +14,42 @@ export interface MicrosoftConfig {
   scopes: string[];
 }
 
+export interface UserProfile {
+  id: string;
+  displayName: string;
+  mail: string;
+  userPrincipalName: string;
+}
 export class MicrosoftService {
   private static accessToken: string | null = null;
   private static refreshToken: string | null = null;
   private static config: MicrosoftConfig | null = null;
+  private static userProfile: UserProfile | null = null;
 
   // Configuration setup - call this first with your Azure app details
   static configure(config: MicrosoftConfig): void {
     this.config = config;
     this.loadStoredTokens();
+    this.loadStoredUserProfile();
   }
 
   // Load existing tokens from storage
   private static loadStoredTokens(): void {
     this.accessToken = localStorage.getItem('ms_access_token');
     this.refreshToken = localStorage.getItem('ms_refresh_token');
+  }
+
+  // Load stored user profile
+  private static loadStoredUserProfile(): void {
+    const storedProfile = localStorage.getItem('ms_user_profile');
+    if (storedProfile) {
+      try {
+        this.userProfile = JSON.parse(storedProfile);
+      } catch (error) {
+        console.error('Failed to parse stored user profile:', error);
+        this.userProfile = null;
+      }
+    }
   }
 
   // Step 1: Redirect user to Microsoft login
@@ -48,7 +69,7 @@ export class MicrosoftService {
     authUrl.searchParams.set('client_id', this.config.clientId);
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('redirect_uri', this.config.redirectUri);
-    authUrl.searchParams.set('scope', this.config.scopes.join(' '));
+    authUrl.searchParams.set('scope', [...this.config.scopes, 'User.Read'].join(' '));
     authUrl.searchParams.set('response_mode', 'query');
     authUrl.searchParams.set('state', Math.random().toString(36).substring(2, 15));
     authUrl.searchParams.set('access_type', 'offline');
@@ -78,7 +99,7 @@ export class MicrosoftService {
       
       const body = new URLSearchParams({
         client_id: this.config.clientId,
-        scope: this.config.scopes.join(' '),
+        scope: [...this.config.scopes, 'User.Read'].join(' '),
         code: code,
         redirect_uri: this.config.redirectUri,
         grant_type: 'authorization_code',
@@ -122,11 +143,56 @@ export class MicrosoftService {
         console.log('Token expires at:', new Date(expirationTime).toISOString());
       }
       
+      // Fetch user profile
+      await this.fetchUserProfile();
+      
       console.log('Tokens stored successfully');
     } catch (error) {
       console.error('Token exchange error:', error);
       throw error;
     }
+  }
+
+  // Fetch user profile from Microsoft Graph
+  static async fetchUserProfile(): Promise<UserProfile> {
+    if (!this.accessToken) {
+      throw new Error('No access token available');
+    }
+
+    try {
+      const response = await fetch('https://graph.microsoft.com/v1.0/me', {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+      }
+
+      const profileData = await response.json();
+      
+      this.userProfile = {
+        id: profileData.id,
+        displayName: profileData.displayName,
+        mail: profileData.mail || profileData.userPrincipalName,
+        userPrincipalName: profileData.userPrincipalName,
+      };
+
+      // Store user profile
+      localStorage.setItem('ms_user_profile', JSON.stringify(this.userProfile));
+      
+      return this.userProfile;
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      throw error;
+    }
+  }
+
+  // Get current user profile
+  static getCurrentUser(): UserProfile | null {
+    this.loadStoredUserProfile();
+    return this.userProfile;
   }
 
   // Handle implicit flow callback (keep for backward compatibility)
@@ -168,6 +234,13 @@ export class MicrosoftService {
       console.log('No expiration provided, setting default expiration at:', new Date(defaultExpiration).toISOString());
     }
     
+    // Fetch user profile for implicit flow too
+    try {
+      await this.fetchUserProfile();
+    } catch (error) {
+      console.warn('Failed to fetch user profile in implicit flow:', error);
+    }
+    
     console.log('Tokens stored successfully');
   }
 
@@ -182,7 +255,7 @@ export class MicrosoftService {
       
       const body = new URLSearchParams({
         client_id: this.config.clientId,
-        scope: this.config.scopes.join(' '),
+        scope: [...this.config.scopes, 'User.Read'].join(' '),
         refresh_token: this.refreshToken,
         grant_type: 'refresh_token',
       });
@@ -1233,9 +1306,11 @@ export class MicrosoftService {
   static logout(): void {
     this.accessToken = null;
     this.refreshToken = null;
+    this.userProfile = null;
     localStorage.removeItem('ms_access_token');
     localStorage.removeItem('ms_refresh_token');
     localStorage.removeItem('ms_token_expires');
+    localStorage.removeItem('ms_user_profile');
     console.log('Microsoft authentication cleared');
   }
 

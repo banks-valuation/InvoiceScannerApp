@@ -1,13 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabaseClient';
 import { AuthModal } from './AuthModal';
 import { SettingsService } from '../services/settingsService';
 import { MicrosoftService } from '../services/microsoftService';
 
+interface User {
+  id: string;
+  displayName: string;
+  email: string;
+  userPrincipalName: string;
+}
+
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -28,107 +32,91 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [hasTriedAutoConnect, setHasTriedAutoConnect] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Show auth modal if no session
-        if (!session) {
-          setShowAuthModal(true);
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to get initial session:', error);
-        // Handle invalid session by setting logged-out state
-        setSession(null);
-        setUser(null);
-        setLoading(false);
-        setShowAuthModal(true);
-      });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Check if user is already authenticated with Microsoft
+    const checkAuth = async () => {
       setLoading(false);
       
-      // Clear settings cache and reload when user signs in
-      if (event === 'SIGNED_IN' && session?.user) {
-        SettingsService.clearCache();
-        try {
-          // Preload settings from database to sync with other devices
-          await SettingsService.getSettings(session.user);
-        } catch (error) {
-          console.error('Failed to reload settings after login:', error);
+      if (MicrosoftService.isAuthenticated()) {
+        const profile = MicrosoftService.getCurrentUser();
+        if (profile) {
+          setUser({
+            id: profile.id,
+            displayName: profile.displayName,
+            email: profile.mail,
+            userPrincipalName: profile.userPrincipalName,
+          });
+          setShowAuthModal(false);
+        } else {
+          // Try to fetch profile if authenticated but no profile cached
+          try {
+            const fetchedProfile = await MicrosoftService.fetchUserProfile();
+            setUser({
+              id: fetchedProfile.id,
+              displayName: fetchedProfile.displayName,
+              email: fetchedProfile.mail,
+              userPrincipalName: fetchedProfile.userPrincipalName,
+            });
+            setShowAuthModal(false);
+          } catch (error) {
+            console.error('Failed to fetch user profile:', error);
+            setUser(null);
+            setShowAuthModal(true);
+          }
         }
-        
-        // Auto-connect to OneDrive after successful login (only once per session)
-        if (!hasTriedAutoConnect) {
-          setHasTriedAutoConnect(true);
-          setTimeout(() => {
-            // Check if already connected to avoid unnecessary redirects
-            if (!MicrosoftService.isAuthenticated()) {
-              console.log('Auto-connecting to OneDrive after login...');
-              try {
-                MicrosoftService.initiateLogin();
-              } catch (error) {
-                console.error('Auto OneDrive connection failed:', error);
-                // Don't show error to user for auto-connect failure
-              }
-            }
-          }, 1000); // Small delay to ensure UI is ready
-        }
+      } else {
+        setUser(null);
+        setShowAuthModal(true);
       }
-      
-      // Show/hide auth modal based on session
-      setShowAuthModal(!session);
-      
-      // Reset auto-connect flag when user signs out
-      if (event === 'SIGNED_OUT') {
-        setHasTriedAutoConnect(false);
-      }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
+
+  // Handle successful Microsoft authentication
+  const handleAuthSuccess = async () => {
+    try {
+      const profile = await MicrosoftService.fetchUserProfile();
+      setUser({
+        id: profile.id,
+        displayName: profile.displayName,
+        email: profile.mail,
+        userPrincipalName: profile.userPrincipalName,
+      });
+      setShowAuthModal(false);
+      
+      // Clear settings cache and reload when user signs in
+      SettingsService.clearCache();
+      try {
+        // Preload settings from database to sync with other devices
+        await SettingsService.getSettings({ id: profile.id });
+      } catch (error) {
+        console.error('Failed to reload settings after login:', error);
+      }
+    } catch (error) {
+      console.error('Failed to handle auth success:', error);
+      setUser(null);
+      setShowAuthModal(true);
+    }
+  };
 
   const signOut = async () => {
     // Clear settings cache when signing out
     SettingsService.clearCache();
     
-    // Reset auto-connect flag
-    setHasTriedAutoConnect(false);
+    // Clear Microsoft authentication
+    MicrosoftService.logout();
     
-    try {
-      await supabase.auth.signOut();
-    } catch (error: any) {
-      // Handle case where session doesn't exist on server
-      if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
-        // Manually update local state to reflect logged-out state
-        setSession(null);
-        setUser(null);
-        setShowAuthModal(true);
-      } else {
-        // Re-throw other errors
-        throw error;
-      }
-    }
+    // Update local state
+    setUser(null);
+    setShowAuthModal(true);
   };
 
   const value = {
     user,
-    session,
     loading,
     signOut,
   };
@@ -150,6 +138,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       <AuthModal 
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
+        onAuthSuccess={handleAuthSuccess}
       />
     </AuthContext.Provider>
   );

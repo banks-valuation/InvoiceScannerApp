@@ -680,7 +680,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                         <span className="flex-1 text-gray-900">{item.name}</span>
                         {item.isFolder ? (
                           <ChevronRight className="w-4 h-4 text-gray-400" />
-                        ) : (
+                  return 'Signed in with Microsoft 365';
                           <span className="text-xs text-gray-500">Select</span>
                         )}
                       </button>
@@ -691,14 +691,14 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
             </div>
           </div>
         </div>
-      )}
+            Sign Out
 
       {/* Alert Modal */}
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={alertModal.handleClose}
         title={alertModal.config?.title || ''}
-        message={alertModal.config?.message || ''}
+            Sign In with Microsoft
         type={alertModal.config?.type}
         buttonText={alertModal.config?.buttonText}
       />

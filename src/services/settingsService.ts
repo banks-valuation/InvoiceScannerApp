@@ -12,42 +12,10 @@ export class SettingsService {
     }
 
     try {
-      let currentUser = user;
-
-      // Only check authentication if user not provided
-      if (!currentUser) {
-        const authPromise = supabase.auth.getUser()
-          .then(result => ({ result, timeout: false }))
-          .catch(err => ({ error: err, timeout: false }));
-
-        const authTimeoutPromise = new Promise(resolve =>
-          setTimeout(() => resolve({ timeout: true }), 10000)
-        );
-
-        const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
-
-        if (authResult.timeout) {
-          console.warn('Authentication check timed out, falling back to localStorage');
-          const localSettings = this.getLocalSettings();
-          this.cachedSettings = localSettings;
-          return localSettings;
-        }
-
-        if (authResult.error) {
-          if (authResult.error.message === 'Auth session missing!') {
-            console.log('No auth session, using localStorage settings');
-            const localSettings = this.getLocalSettings();
-            this.cachedSettings = localSettings;
-            return localSettings;
-          }
-          console.error('Auth error when fetching settings:', authResult.error);
-          throw new Error(`Authentication error: ${authResult.error.message}`);
-        }
-
-        currentUser = authResult.result?.data?.user;
-      }
-
-      if (!currentUser) {
+      // For Microsoft auth, we need to use the user ID from the Microsoft profile
+      const userId = user?.id;
+      
+      if (!userId) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
@@ -58,7 +26,7 @@ export class SettingsService {
       const dbPromise = supabase
         .from('user_settings')
         .select('settings')
-        .eq('user_id', currentUser.id)
+        .eq('user_id', userId)
         .maybeSingle()
         .then(result => ({ result, timeout: false }))
         .catch(err => ({ error: err, timeout: false }));
@@ -135,19 +103,11 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      const { data, error: authError } = await supabase.auth.getUser();
-
-      if (authError) {
-        if (authError.message === 'Auth session missing!') {
-          console.log('No auth session, saving settings locally');
-          this.saveLocalSettings(settings);
-          return;
-        }
-        throw authError;
-      }
-
-      const user = data?.user;
-      if (!user) {
+      // Get current Microsoft user
+      const { MicrosoftService } = await import('./microsoftService');
+      const currentUser = MicrosoftService.getCurrentUser();
+      
+      if (!currentUser) {
         this.saveLocalSettings(settings);
         return;
       }
@@ -155,7 +115,7 @@ export class SettingsService {
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: user.id,
+          user_id: currentUser.id,
           settings: settings,
         }, {
           onConflict: 'user_id'
@@ -178,25 +138,15 @@ export class SettingsService {
 
   static async resetSettings(): Promise<void> {
     try {
-      const { data, error: authError } = await supabase.auth.getUser();
+      // Get current Microsoft user
+      const { MicrosoftService } = await import('./microsoftService');
+      const currentUser = MicrosoftService.getCurrentUser();
 
-      if (authError) {
-        if (authError.message === 'Auth session missing!') {
-          console.log('No auth session, clearing local settings only');
-          localStorage.removeItem(this.SETTINGS_KEY);
-          this.cachedSettings = null;
-          return;
-        }
-        throw authError;
-      }
-
-      const user = data?.user;
-
-      if (user) {
+      if (currentUser) {
         const { error } = await supabase
           .from('user_settings')
           .delete()
-          .eq('user_id', user.id);
+          .eq('user_id', currentUser.id);
 
         if (error) {
           console.error('Error deleting settings from database:', error);
