@@ -5,8 +5,8 @@ import { Invoice, InvoiceFormData } from '../types/invoice';
  * SupabaseInvoiceService
  *
  * Notes:
- * - Uses Microsoft user ID for data isolation
- * - All methods require userId parameter for proper data access control
+ * - We no longer call supabase.auth.getUser() inside this service.
+ * - Instead, pass the current user (from AuthProvider/useAuth) into methods when needed.
  */
 export class SupabaseInvoiceService {
   private static readonly BUCKET_NAME = 'invoices';

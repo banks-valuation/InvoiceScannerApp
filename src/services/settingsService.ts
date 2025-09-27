@@ -12,10 +12,42 @@ export class SettingsService {
     }
 
     try {
-      // Use Supabase user ID
-      const userId = user?.id;
-      
-      if (!userId) {
+      let currentUser = user;
+
+      // Only check authentication if user not provided
+      if (!currentUser) {
+        const authPromise = supabase.auth.getUser()
+          .then(result => ({ result, timeout: false }))
+          .catch(err => ({ error: err, timeout: false }));
+
+        const authTimeoutPromise = new Promise(resolve =>
+          setTimeout(() => resolve({ timeout: true }), 10000)
+        );
+
+        const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
+
+        if (authResult.timeout) {
+          console.warn('Authentication check timed out, falling back to localStorage');
+          const localSettings = this.getLocalSettings();
+          this.cachedSettings = localSettings;
+          return localSettings;
+        }
+
+        if (authResult.error) {
+          if (authResult.error.message === 'Auth session missing!') {
+            console.log('No auth session, using localStorage settings');
+            const localSettings = this.getLocalSettings();
+            this.cachedSettings = localSettings;
+            return localSettings;
+          }
+          console.error('Auth error when fetching settings:', authResult.error);
+          throw new Error(`Authentication error: ${authResult.error.message}`);
+        }
+
+        currentUser = authResult.result?.data?.user;
+      }
+
+      if (!currentUser) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
@@ -26,7 +58,7 @@ export class SettingsService {
       const dbPromise = supabase
         .from('user_settings')
         .select('settings')
-        .eq('user_id', userId)
+        .eq('user_id', currentUser.id)
         .maybeSingle()
         .then(result => ({ result, timeout: false }))
         .catch(err => ({ error: err, timeout: false }));
@@ -103,10 +135,18 @@ export class SettingsService {
 
   static async saveSettings(settings: AppSettings): Promise<void> {
     try {
-      // Get current Supabase user
-      const { supabase } = await import('../lib/supabaseClient');
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const { data, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        if (authError.message === 'Auth session missing!') {
+          console.log('No auth session, saving settings locally');
+          this.saveLocalSettings(settings);
+          return;
+        }
+        throw authError;
+      }
+
+      const user = data?.user;
       if (!user) {
         this.saveLocalSettings(settings);
         return;
@@ -138,9 +178,19 @@ export class SettingsService {
 
   static async resetSettings(): Promise<void> {
     try {
-      // Get current Supabase user
-      const { supabase } = await import('../lib/supabaseClient');
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        if (authError.message === 'Auth session missing!') {
+          console.log('No auth session, clearing local settings only');
+          localStorage.removeItem(this.SETTINGS_KEY);
+          this.cachedSettings = null;
+          return;
+        }
+        throw authError;
+      }
+
+      const user = data?.user;
 
       if (user) {
         const { error } = await supabase

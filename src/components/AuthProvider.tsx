@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
-import { User } from '@supabase/supabase-js';
 import { AuthModal } from './AuthModal';
 import { SettingsService } from '../services/settingsService';
+import { MicrosoftService } from '../services/microsoftService';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -26,84 +28,107 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [hasTriedAutoConnect, setHasTriedAutoConnect] = useState(false);
 
   useEffect(() => {
     // Get initial session
-    const getInitialSession = async () => {
-      console.log('AuthProvider: Getting initial session...');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error);
-      }
-      
-      if (session?.user) {
-        console.log('AuthProvider: Found existing session for user:', session.user.email);
-        setUser(session.user);
-        setShowAuthModal(false);
-      } else {
-        console.log('AuthProvider: No existing session found');
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Show auth modal if no session
+        if (!session) {
+          setShowAuthModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to get initial session:', error);
+        // Handle invalid session by setting logged-out state
+        setSession(null);
         setUser(null);
+        setLoading(false);
         setShowAuthModal(true);
-      }
-      
-      setLoading(false);
-    };
-
-    getInitialSession();
+      });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('AuthProvider: Auth state changed:', event, session?.user?.email);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      // Clear settings cache and reload when user signs in
+      if (event === 'SIGNED_IN' && session?.user) {
+        SettingsService.clearCache();
+        try {
+          // Preload settings from database to sync with other devices
+          await SettingsService.getSettings(session.user);
+        } catch (error) {
+          console.error('Failed to reload settings after login:', error);
+        }
         
-        if (session?.user) {
-          setUser(session.user);
-          setShowAuthModal(false);
-          
-          // Clear settings cache and reload when user signs in
-          SettingsService.clearCache();
-          try {
-            // Preload settings from database
-            await SettingsService.getSettings(session.user);
-          } catch (error) {
-            console.error('Failed to reload settings after login:', error);
-          }
-        } else {
-          setUser(null);
-          setShowAuthModal(true);
-          // Clear settings cache when signing out
-          SettingsService.clearCache();
+        // Auto-connect to OneDrive after successful login (only once per session)
+        if (!hasTriedAutoConnect) {
+          setHasTriedAutoConnect(true);
+          setTimeout(() => {
+            // Check if already connected to avoid unnecessary redirects
+            if (!MicrosoftService.isAuthenticated()) {
+              console.log('Auto-connecting to OneDrive after login...');
+              try {
+                MicrosoftService.initiateLogin();
+              } catch (error) {
+                console.error('Auto OneDrive connection failed:', error);
+                // Don't show error to user for auto-connect failure
+              }
+            }
+          }, 1000); // Small delay to ensure UI is ready
         }
       }
-    );
+      
+      // Show/hide auth modal based on session
+      setShowAuthModal(!session);
+      
+      // Reset auto-connect flag when user signs out
+      if (event === 'SIGNED_OUT') {
+        setHasTriedAutoConnect(false);
+      }
+    });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
-    console.log('AuthProvider: Signing out...');
-    
     // Clear settings cache when signing out
     SettingsService.clearCache();
     
-    // Sign out from Supabase
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-    }
+    // Reset auto-connect flag
+    setHasTriedAutoConnect(false);
     
-    // Update local state
-    setUser(null);
-    setShowAuthModal(true);
+    try {
+      await supabase.auth.signOut();
+    } catch (error: any) {
+      // Handle case where session doesn't exist on server
+      if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
+        // Manually update local state to reflect logged-out state
+        setSession(null);
+        setUser(null);
+        setShowAuthModal(true);
+      } else {
+        // Re-throw other errors
+        throw error;
+      }
+    }
   };
 
   const value = {
     user,
+    session,
     loading,
     signOut,
   };
@@ -122,12 +147,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      {showAuthModal && (
-        <AuthModal 
-          isOpen={showAuthModal} 
-          onClose={() => setShowAuthModal(false)} 
-        />
-      )}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </AuthContext.Provider>
   );
 }

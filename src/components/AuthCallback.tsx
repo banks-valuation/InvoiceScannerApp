@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MicrosoftService } from '../services/microsoftService';
 import { AlertModal } from './Modal';
@@ -7,29 +7,26 @@ import { useAlertModal } from '../hooks/useModal';
 export function AuthCallback() {
   const navigate = useNavigate();
   const alertModal = useAlertModal();
-  const [isProcessing, setIsProcessing] = useState(false);
   
   useEffect(() => {
-    // Prevent multiple executions
-    if (isProcessing) return;
-    
     const handleCallback = async () => {
       console.log('AuthCallback: Starting callback handling');
       console.log('Current URL:', window.location.href);
       
-      setIsProcessing(true);
-      
-      // Check for authorization code or error
+      // Check for authorization code (new flow) or access token (legacy flow)
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
-      const state = urlParams.get('state');
+
+      // Also check hash for legacy implicit flow
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
 
       console.log('URL params:', { 
         code: code ? 'present' : 'missing', 
-        state: state ? 'present' : 'missing',
-        error,
+        accessToken: accessToken ? 'present' : 'missing', 
+        error, 
         errorDescription 
       });
       
@@ -37,77 +34,70 @@ export function AuthCallback() {
         console.error('Authentication error:', error, errorDescription);
         alertModal.showAlert({
           title: 'Authentication Failed',
-          message: `Authentication failed: ${error}\n\n${errorDescription || 'Please try signing in again.'}`,
+          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nYou can manually connect to OneDrive later from the Settings page.`,
           type: 'error'
         });
-        setTimeout(() => navigate('/'), 3000);
+        navigate('/');
         return;
       }
 
       if (code) {
-        // Check if we're already authenticated to avoid duplicate processing
-        if (MicrosoftService.isAuthenticated()) {
-          console.log('Already authenticated, redirecting to home');
-          navigate('/');
-          return;
-        }
-
+        // New authorization code flow
         try {
-          console.log('Processing authorization code with PKCE...');
-          
-          // Add a small delay to ensure all storage operations are complete
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
+          console.log('Processing authorization code...');
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
-          
-          // Fetch user profile to complete authentication
-          await MicrosoftService.fetchUserProfile();
-          console.log('User profile fetched successfully');
-          
-          // Clear the URL to prevent reprocessing
-          window.history.replaceState({}, document.title, '/');
-          
           alertModal.showAlert({
-            title: 'Welcome!',
-            message: 'Successfully signed in with Microsoft!',
+            title: 'OneDrive Connected!',
+            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
             type: 'success'
           });
-          
-          // Navigate after a short delay to show the success message
-          setTimeout(() => navigate('/'), 1500);
+          navigate('/');
         } catch (error) {
           console.error('Authorization code processing failed:', error);
-          
-          // Clear any stored auth data on failure
-          localStorage.removeItem('ms_code_verifier');
-          localStorage.removeItem('pkce_code_verifier');
-          localStorage.removeItem('ms_auth_state');
-          sessionStorage.removeItem('ms_code_verifier');
-          sessionStorage.removeItem('ms_auth_state');
-          
           alertModal.showAlert({
-            title: 'Sign In Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
+            title: 'OneDrive Connection Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
             type: 'error'
           });
-          setTimeout(() => navigate('/'), 3000);
+          navigate('/');
+        }
+      } else if (accessToken) {
+        // Legacy implicit flow
+        try {
+          console.log('Processing access token...');
+          await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
+          console.log('Authentication successful!');
+          alertModal.showAlert({
+            title: 'OneDrive Connected!',
+            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
+            type: 'success'
+          });
+          navigate('/');
+        } catch (error) {
+          console.error('Token processing failed:', error);
+          alertModal.showAlert({
+            title: 'OneDrive Connection Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
+            type: 'error'
+          });
+          navigate('/');
         }
       } else {
-        console.log('No authorization code found, redirecting to home');
+        console.log('No authorization code or access token found, redirecting to home');
         navigate('/');
       }
     };
 
     handleCallback();
-  }, [navigate, alertModal, isProcessing]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Signing you in...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we complete the authentication</p>
+        <p className="text-gray-600 font-medium">Connecting to OneDrive...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we set up your cloud storage</p>
       </div>
       
       {/* Alert Modal */}
