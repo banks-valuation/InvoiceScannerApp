@@ -454,6 +454,9 @@ export class MicrosoftService {
       const settings = await SettingsService.getSettings();
       const excelFileName = settings.onedrive.excelFileName || 'Invoice_Tracker.xlsx';
       
+      // Ensure Excel file exists before attempting to update
+      await this.ensureExcelFileExists(excelFileName);
+      
       // Get the workbook and find the row to update
       const workbookResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${excelFileName}:/workbook/worksheets('Sheet1')/tables`, {
         headers: {
