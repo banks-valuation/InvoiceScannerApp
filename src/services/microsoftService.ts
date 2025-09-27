@@ -112,13 +112,11 @@ export class MicrosoftService {
     console.log('Processing authorization code with PKCE...');
 
     // Retrieve stored PKCE verifier and state (try multiple storage locations)
-    let storedCodeVerifier = localStorage.getItem('ms_code_verifier') || 
+    const storedCodeVerifier = localStorage.getItem('ms_code_verifier') || 
                             localStorage.getItem('pkce_code_verifier') || 
                             sessionStorage.getItem('ms_code_verifier');
     
-    let storedState = localStorage.getItem('ms_auth_state') || 
-                     sessionStorage.getItem('ms_auth_state');
-    let storedState = localStorage.getItem('ms_pkce_state') || 
+    const storedState = localStorage.getItem('ms_pkce_state') || 
                      sessionStorage.getItem('ms_pkce_state');
 
     console.log('Retrieved code verifier:', storedCodeVerifier ? storedCodeVerifier.substring(0, 10) + '...' : 'null');
