@@ -52,7 +52,7 @@ export class SupabaseInvoiceService {
 
   static async getInvoices(userId: string): Promise<Invoice[]> {
     try {
-      console.log('Fetching invoices from Supabase...');
+      console.log('Fetching invoices from Supabase... userId: ' + userId);
 
       console.time("query");
       const { data, error } = await supabase
