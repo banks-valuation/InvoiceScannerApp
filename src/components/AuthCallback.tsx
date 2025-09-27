@@ -13,20 +13,17 @@ export function AuthCallback() {
       console.log('AuthCallback: Starting callback handling');
       console.log('Current URL:', window.location.href);
       
-      // Check for authorization code (new flow) or access token (legacy flow)
+      // Check for authorization code or error
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const error = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
-
-      // Also check hash for legacy implicit flow
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
+      const state = urlParams.get('state');
 
       console.log('URL params:', { 
         code: code ? 'present' : 'missing', 
-        accessToken: accessToken ? 'present' : 'missing', 
-        error, 
+        state: state ? 'present' : 'missing',
+        error,
         errorDescription 
       });
       
@@ -34,17 +31,17 @@ export function AuthCallback() {
         console.error('Authentication error:', error, errorDescription);
         alertModal.showAlert({
           title: 'Authentication Failed',
-          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nPlease try signing in again.`,
+          message: `Authentication failed: ${error}\n\n${errorDescription || 'Please try signing in again.'}`,
           type: 'error'
         });
-        setTimeout(() => navigate('/'), 2000);
+        setTimeout(() => navigate('/'), 3000);
         return;
       }
 
       if (code) {
-        // New authorization code flow
+        // Authorization code flow with PKCE
         try {
-          console.log('Processing authorization code...');
+          console.log('Processing authorization code with PKCE...');
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
           
@@ -67,38 +64,10 @@ export function AuthCallback() {
             message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
             type: 'error'
           });
-          setTimeout(() => navigate('/'), 2000);
-        }
-      } else if (accessToken) {
-        // Legacy implicit flow
-        try {
-          console.log('Processing access token...');
-          await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
-          console.log('Authentication successful!');
-          
-          // Fetch user profile to complete authentication
-          await MicrosoftService.fetchUserProfile();
-          console.log('User profile fetched successfully');
-          
-          alertModal.showAlert({
-            title: 'Welcome!',
-            message: 'Successfully signed in with Microsoft!',
-            type: 'success'
-          });
-          
-          // Navigate after a short delay to show the success message
-          setTimeout(() => navigate('/'), 1500);
-        } catch (error) {
-          console.error('Token processing failed:', error);
-          alertModal.showAlert({
-            title: 'Sign In Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,
-            type: 'error'
-          });
-          setTimeout(() => navigate('/'), 2000);
+          setTimeout(() => navigate('/'), 3000);
         }
       } else {
-        console.log('No authorization code or access token found, redirecting to home');
+        console.log('No authorization code found, redirecting to home');
         navigate('/');
       }
     };
