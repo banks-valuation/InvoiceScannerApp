@@ -42,6 +42,10 @@ export function AuthCallback() {
         // Authorization code flow with PKCE
         try {
           console.log('Processing authorization code with PKCE...');
+          
+          // Add a small delay to ensure all storage operations are complete
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
           
@@ -59,6 +63,14 @@ export function AuthCallback() {
           setTimeout(() => navigate('/'), 1500);
         } catch (error) {
           console.error('Authorization code processing failed:', error);
+          
+          // Clear any stored auth data on failure
+          localStorage.removeItem('ms_code_verifier');
+          localStorage.removeItem('pkce_code_verifier');
+          localStorage.removeItem('ms_auth_state');
+          sessionStorage.removeItem('ms_code_verifier');
+          sessionStorage.removeItem('ms_auth_state');
+          
           alertModal.showAlert({
             title: 'Sign In Failed',
             message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try signing in again.`,

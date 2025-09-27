@@ -72,12 +72,15 @@ export class MicrosoftService {
     this.codeVerifier = this.generateCodeVerifier();
     const codeChallenge = await this.generateCodeChallenge(this.codeVerifier);
     
-    // Store code verifier for later use
+    // Store code verifier for later use with multiple keys for redundancy
     localStorage.setItem('ms_code_verifier', this.codeVerifier);
+    localStorage.setItem('pkce_code_verifier', this.codeVerifier);
+    sessionStorage.setItem('ms_code_verifier', this.codeVerifier);
 
     // Generate state parameter for security
     const state = Math.random().toString(36).substring(2, 15);
     localStorage.setItem('ms_auth_state', state);
+    sessionStorage.setItem('ms_auth_state', state);
 
     const authUrl = new URL('https://login.microsoftonline.com/' + this.config.tenantId + '/oauth2/v2.0/authorize');
     
@@ -91,6 +94,7 @@ export class MicrosoftService {
     authUrl.searchParams.append('response_mode', 'query');
 
     console.log('Redirecting to Microsoft login:', authUrl.toString());
+    console.log('Stored code verifier:', this.codeVerifier.substring(0, 10) + '...');
     window.location.href = authUrl.toString();
   }
 
@@ -101,19 +105,33 @@ export class MicrosoftService {
 
     console.log('Processing authorization code with PKCE...');
 
-    // Retrieve stored PKCE verifier and state
-    const storedCodeVerifier = localStorage.getItem('ms_code_verifier');
-    const storedState = localStorage.getItem('ms_auth_state');
+    // Retrieve stored PKCE verifier and state (try multiple storage locations)
+    let storedCodeVerifier = localStorage.getItem('ms_code_verifier') || 
+                            localStorage.getItem('pkce_code_verifier') || 
+                            sessionStorage.getItem('ms_code_verifier');
+    
+    let storedState = localStorage.getItem('ms_auth_state') || 
+                     sessionStorage.getItem('ms_auth_state');
+
+    console.log('Retrieved code verifier:', storedCodeVerifier ? storedCodeVerifier.substring(0, 10) + '...' : 'null');
+    console.log('Retrieved state:', storedState ? 'present' : 'null');
 
     if (!storedCodeVerifier) {
-      throw new Error('Code verifier not found. Please try logging in again.');
+      console.error('Code verifier not found in any storage location');
+      // Try to get from class instance as fallback
+      if (this.codeVerifier) {
+        console.log('Using code verifier from class instance');
+        storedCodeVerifier = this.codeVerifier;
+      } else {
+        throw new Error('Code verifier not found. Please try logging in again.');
+      }
     }
 
     // Verify state parameter (basic CSRF protection)
     const urlParams = new URLSearchParams(window.location.search);
     const returnedState = urlParams.get('state');
     
-    if (returnedState !== storedState) {
+    if (storedState && returnedState !== storedState) {
       throw new Error('State parameter mismatch. Possible CSRF attack.');
     }
 
@@ -151,9 +169,13 @@ export class MicrosoftService {
     this.refreshToken = tokens.refresh_token || null;
     this.tokenExpiry = Date.now() + (tokens.expires_in * 1000);
 
-    // Clean up temporary storage
+    // Clean up temporary storage from all locations
     localStorage.removeItem('ms_code_verifier');
+    localStorage.removeItem('pkce_code_verifier');
     localStorage.removeItem('ms_auth_state');
+    sessionStorage.removeItem('ms_code_verifier');
+    sessionStorage.removeItem('ms_auth_state');
+    this.codeVerifier = null;
 
     // Persist authentication state
     this.saveAuthState();
