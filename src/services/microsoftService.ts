@@ -746,12 +746,35 @@ export class MicrosoftService {
 
   private static async ensureTableInExistingExcelFile(fileName: string): Promise<string> {
     try {
-      // Check if tables exist
-      const tablesResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/workbook/worksheets('Sheet1')/tables`, {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
-      });
+      // Check if tables exist with retry mechanism
+      let tablesResponse;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount <= maxRetries) {
+        tablesResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/workbook/worksheets('Sheet1')/tables`, {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        });
+        
+        // If successful or client error (not server error), break out of retry loop
+        if (tablesResponse.ok || (tablesResponse.status >= 400 && tablesResponse.status < 500 && tablesResponse.status !== 404)) {
+          break;
+        }
+        
+        // If 5xx error or 404, retry with exponential backoff
+        if (tablesResponse.status >= 500 || tablesResponse.status === 404) {
+          retryCount++;
+          if (retryCount <= maxRetries) {
+            const delay = Math.pow(2, retryCount - 1) * 1000; // 1s, 2s, 4s
+            console.log(`Excel tables request failed with ${tablesResponse.status}, retrying in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        } else {
+          break;
+        }
+      }
 
       if (!tablesResponse.ok) {
         throw new Error(`Failed to check tables: ${tablesResponse.status}`);
