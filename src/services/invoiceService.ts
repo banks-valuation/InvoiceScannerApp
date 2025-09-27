@@ -123,12 +123,9 @@ export class InvoiceService {
       console.log('Resyncing invoice to Excel:', invoice.id);
       
       try {
-        // Ensure all file-related fields are included in the update
         await MicrosoftService.updateInExcel({
           ...invoice,
           onedrive_file_url: invoice.onedrive_file_url,
-          // Make sure filename is extracted from the URL for Excel
-          filename: invoice.onedrive_file_url ? invoice.onedrive_file_url.split('/').pop() || 'Unknown' : 'Unknown',
         });
         console.log('Excel resync successful');
       } catch (error) {
@@ -140,7 +137,6 @@ export class InvoiceService {
           await MicrosoftService.appendToExcel({
             ...invoice,
             onedrive_file_url: invoice.onedrive_file_url,
-            filename: invoice.onedrive_file_url ? invoice.onedrive_file_url.split('/').pop() || 'Unknown' : 'Unknown',
           });
         } else {
           throw error;
