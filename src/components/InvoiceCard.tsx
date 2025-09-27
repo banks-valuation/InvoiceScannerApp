@@ -12,9 +12,10 @@ interface InvoiceCardProps {
   onEdit: (invoice: Invoice) => void;
   onDelete: (id: string) => void;
   onInvoiceUpdate?: (updatedInvoice: Invoice) => void;
+  userId: string;
 }
 
-export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: InvoiceCardProps) {
+export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate, userId }: InvoiceCardProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const [isResyncing, setIsResyncing] = React.useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = React.useState(MicrosoftService.isAuthenticated());
@@ -104,11 +105,11 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate }: Invo
     setUploadError(null);
 
     try {
-      const result = await InvoiceService.resyncToExcel(invoice);
+      const result = await InvoiceService.uploadToOneDrive(invoice);
       
       if (result.success) {
         // Refresh the invoice data to show updated status
-        const updatedInvoices = await InvoiceService.getInvoices(userId);
+        const updatedInvoices = await InvoiceService.getInvoices(user!.id);
         const updatedInvoice = updatedInvoices.find(inv => inv.id === invoice.id);
         if (updatedInvoice && onInvoiceUpdate) {
           onInvoiceUpdate(updatedInvoice);
