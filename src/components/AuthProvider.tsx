@@ -1,14 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import { User } from '@supabase/supabase-js';
 import { AuthModal } from './AuthModal';
 import { SettingsService } from '../services/settingsService';
-import { MicrosoftService } from '../services/microsoftService';
-
-interface User {
-  id: string;
-  displayName: string;
-  email: string;
-  userPrincipalName: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -36,43 +30,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    // Check if user is already authenticated with Microsoft
-    const checkAuth = async () => {
-      console.log('AuthProvider: Checking authentication status...');
+    // Get initial session
+    const getInitialSession = async () => {
+      console.log('AuthProvider: Getting initial session...');
+      const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (MicrosoftService.isAuthenticated()) {
-        console.log('AuthProvider: User is authenticated, fetching profile...');
-        const profile = MicrosoftService.getCurrentUser();
-        if (profile) {
-          console.log('AuthProvider: Profile found in cache:', profile.displayName);
-          setUser({
-            id: profile.id,
-            displayName: profile.displayName,
-            email: profile.mail,
-            userPrincipalName: profile.userPrincipalName,
-          });
-          setShowAuthModal(false);
-        } else {
-          // Try to fetch profile if authenticated but no profile cached
-          try {
-            console.log('AuthProvider: Fetching profile from Microsoft Graph...');
-            const fetchedProfile = await MicrosoftService.fetchUserProfile();
-            console.log('AuthProvider: Profile fetched successfully:', fetchedProfile.displayName);
-            setUser({
-              id: fetchedProfile.id,
-              displayName: fetchedProfile.displayName,
-              email: fetchedProfile.mail,
-              userPrincipalName: fetchedProfile.userPrincipalName,
-            });
-            setShowAuthModal(false);
-          } catch (error) {
-            console.error('Failed to fetch user profile:', error);
-            setUser(null);
-            setShowAuthModal(true);
-          }
-        }
+      if (error) {
+        console.error('Error getting session:', error);
+      }
+      
+      if (session?.user) {
+        console.log('AuthProvider: Found existing session for user:', session.user.email);
+        setUser(session.user);
+        setShowAuthModal(false);
       } else {
-        console.log('AuthProvider: User not authenticated, showing auth modal');
+        console.log('AuthProvider: No existing session found');
         setUser(null);
         setShowAuthModal(true);
       }
@@ -80,74 +52,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
     };
 
-    checkAuth();
-  }, []);
+    getInitialSession();
 
-  // Listen for successful authentication from callback
-  useEffect(() => {
-    const handleAuthSuccess = async () => {
-      console.log('AuthProvider: Received auth success event, checking status...');
-      
-      if (MicrosoftService.isAuthenticated()) {
-        try {
-          const profile = await MicrosoftService.fetchUserProfile();
-          console.log('AuthProvider: Setting user profile:', profile.displayName);
-          setUser({
-            id: profile.id,
-            displayName: profile.displayName,
-            email: profile.mail,
-            userPrincipalName: profile.userPrincipalName,
-          });
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('AuthProvider: Auth state changed:', event, session?.user?.email);
+        
+        if (session?.user) {
+          setUser(session.user);
           setShowAuthModal(false);
           
           // Clear settings cache and reload when user signs in
           SettingsService.clearCache();
           try {
-            // Preload settings from database to sync with other devices
-            await SettingsService.getSettings({ id: profile.id });
+            // Preload settings from database
+            await SettingsService.getSettings(session.user);
           } catch (error) {
             console.error('Failed to reload settings after login:', error);
           }
-        } catch (error) {
-          console.error('Failed to handle auth success:', error);
+        } else {
           setUser(null);
           setShowAuthModal(true);
+          // Clear settings cache when signing out
+          SettingsService.clearCache();
         }
       }
+    );
+
+    return () => {
+      subscription.unsubscribe();
     };
-
-    // Only check for auth changes when not on callback page
-    if (!window.location.pathname.includes('/auth/callback')) {
-      // Listen for page visibility changes (when user returns from Microsoft auth)
-      const handleVisibilityChange = () => {
-        if (!document.hidden && !user && MicrosoftService.isAuthenticated()) {
-          console.log('AuthProvider: Page became visible and user authenticated, updating state...');
-          handleAuthSuccess();
-        }
-      };
-
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
-      // Also check periodically in case the callback didn't trigger properly
-      const interval = setInterval(() => {
-        if (!user && MicrosoftService.isAuthenticated()) {
-          console.log('AuthProvider: Periodic check found authenticated user, updating state...');
-          handleAuthSuccess();
-        }
-      }, 2000); // Reduced frequency
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        clearInterval(interval);
-      };
-    }
-  }, [user]);
+  }, []);
 
   const signOut = async () => {
+    console.log('AuthProvider: Signing out...');
+    
     // Clear settings cache when signing out
     SettingsService.clearCache();
     
-    // Clear Microsoft authentication
-    MicrosoftService.logout();
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+    }
     
     // Update local state
     setUser(null);
