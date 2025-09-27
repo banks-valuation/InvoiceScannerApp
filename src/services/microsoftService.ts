@@ -651,7 +651,7 @@ export class MicrosoftService {
       }
 
       // Create new Excel file with headers
-      const excelContent = this.createExcelTemplate();
+      const excelContent = await this.createExcelTemplate();
       
       const createResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/content`, {
         method: 'PUT',
@@ -679,7 +679,7 @@ export class MicrosoftService {
     }
   }
 
-  private static createExcelTemplate(): ArrayBuffer {
+  private static async createExcelTemplate(): Promise<ArrayBuffer> {
     try {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Sheet1');
