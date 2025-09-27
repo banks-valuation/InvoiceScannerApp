@@ -91,7 +91,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (!MicrosoftService.isAuthenticated()) {
               console.log('Auto-connecting to OneDrive after login...');
               try {
-                MicrosoftService.initiateLogin();
+                MicrosoftService.initiateLogin().catch(error => {
+                  console.error('Auto OneDrive connection failed:', error);
+                  // Don't show error to user for auto-connect failure
+                });
               } catch (error) {
                 console.error('Auto OneDrive connection failed:', error);
                 // Don't show error to user for auto-connect failure

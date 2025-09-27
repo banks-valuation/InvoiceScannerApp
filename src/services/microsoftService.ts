@@ -32,7 +32,7 @@ export class MicrosoftService {
   }
 
   // Step 1: Redirect user to Microsoft login
-  static initiateLogin(): void {
+  static async initiateLogin(): Promise<void> {
     if (!this.config) {
       throw new Error('Microsoft service not configured. Call configure() first.');
     }
@@ -42,6 +42,13 @@ export class MicrosoftService {
       tenantId: this.config.tenantId,
       redirectUri: this.config.redirectUri
     });
+
+    // Generate PKCE parameters
+    const codeVerifier = this.generateCodeVerifier();
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+    
+    // Store code verifier for later use in token exchange
+    localStorage.setItem('ms_code_verifier', codeVerifier);
 
     // Construct Microsoft authorization URL for authorization code flow
     const authUrl = new URL(`https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/authorize`);
@@ -53,11 +60,34 @@ export class MicrosoftService {
     authUrl.searchParams.set('state', Math.random().toString(36).substring(2, 15));
     authUrl.searchParams.set('access_type', 'offline');
     authUrl.searchParams.set('prompt', 'consent');
+    authUrl.searchParams.set('code_challenge', codeChallenge);
+    authUrl.searchParams.set('code_challenge_method', 'S256');
 
     console.log('Redirecting to Microsoft authentication:', authUrl.toString());
     
     // Redirect to Microsoft login
     window.location.href = authUrl.toString();
+  }
+
+  // Generate a cryptographically secure random string for PKCE code verifier
+  private static generateCodeVerifier(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode.apply(null, Array.from(array)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  // Generate code challenge from code verifier using SHA256
+  private static async generateCodeChallenge(codeVerifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   // Handle authorization code flow callback
@@ -72,6 +102,12 @@ export class MicrosoftService {
       throw new Error('No authorization code received');
     }
 
+    // Retrieve the stored code verifier
+    const codeVerifier = localStorage.getItem('ms_code_verifier');
+    if (!codeVerifier) {
+      throw new Error('Code verifier not found. Please restart the authentication process.');
+    }
+
     try {
       // Exchange authorization code for tokens
       const tokenUrl = `https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/token`;
@@ -82,6 +118,7 @@ export class MicrosoftService {
         code: code,
         redirect_uri: this.config.redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       });
 
       const response = await fetch(tokenUrl, {
@@ -122,8 +159,13 @@ export class MicrosoftService {
         console.log('Token expires at:', new Date(expirationTime).toISOString());
       }
       
+      // Clean up the code verifier
+      localStorage.removeItem('ms_code_verifier');
+      
       console.log('Tokens stored successfully');
     } catch (error) {
+      // Clean up the code verifier on error
+      localStorage.removeItem('ms_code_verifier');
       console.error('Token exchange error:', error);
       throw error;
     }
