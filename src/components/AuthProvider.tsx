@@ -103,8 +103,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Clear settings cache and reload when user signs in
           SettingsService.clearCache();
           try {
-            // Preload settings from database to sync with other devices
-            await SettingsService.getSettings({ id: profile.id });
+            // Preload settings and create user_settings record if needed
+            const settings = await SettingsService.getSettings({ id: profile.id });
+            console.log('Settings loaded for Microsoft user:', profile.displayName);
           } catch (error) {
             console.error('Failed to reload settings after login:', error);
           }

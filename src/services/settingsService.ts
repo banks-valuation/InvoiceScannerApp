@@ -12,10 +12,10 @@ export class SettingsService {
     }
 
     try {
-      // For Microsoft auth, we need to use the user ID from the Microsoft profile
-      const userId = user?.id;
+      // For Microsoft auth, we need to use the Microsoft user ID
+      const msUserId = user?.id;
       
-      if (!userId) {
+      if (!msUserId) {
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
@@ -26,7 +26,7 @@ export class SettingsService {
       const dbPromise = supabase
         .from('user_settings')
         .select('settings')
-        .eq('user_id', userId)
+        .eq('ms_user_id', msUserId)
         .maybeSingle()
         .then(result => ({ result, timeout: false }))
         .catch(err => ({ error: err, timeout: false }));
@@ -112,13 +112,21 @@ export class SettingsService {
         return;
       }
 
+      // First, try to find existing settings by ms_user_id
+      const { data: existingSettings } = await supabase
+        .from('user_settings')
+        .select('id, user_id')
+        .eq('ms_user_id', currentUser.id)
+        .maybeSingle();
+
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: currentUser.id,
+          user_id: existingSettings?.user_id || currentUser.id, // Use existing user_id or fallback to ms_user_id
+          ms_user_id: currentUser.id,
           settings: settings,
         }, {
-          onConflict: 'user_id'
+          onConflict: 'ms_user_id'
         });
 
       if (error) {
@@ -146,7 +154,7 @@ export class SettingsService {
         const { error } = await supabase
           .from('user_settings')
           .delete()
-          .eq('user_id', currentUser.id);
+          .eq('ms_user_id', currentUser.id);
 
         if (error) {
           console.error('Error deleting settings from database:', error);

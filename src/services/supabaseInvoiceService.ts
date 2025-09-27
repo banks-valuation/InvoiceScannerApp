@@ -55,11 +55,14 @@ export class SupabaseInvoiceService {
       console.log('Fetching invoices from Supabase... userId: ' + userId);
 
       console.time("query");
+      
+      // First try to get invoices by user_id (for existing data)
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
+      
       console.timeEnd("query");
 
       if (error) {
