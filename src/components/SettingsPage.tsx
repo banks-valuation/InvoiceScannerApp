@@ -323,6 +323,11 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                     <span className="font-medium text-gray-900">
                       {isAuthenticated ? 'Connected to Microsoft OneDrive' : 'Not connected'}
                     </span>
+                    {!isAuthenticated && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        OneDrive connection is automatically attempted when you log in
+                      </div>
+                    )}
                     {isAuthenticated && (
                       <div className="text-xs text-gray-500 mt-1">
                         {(() => {
@@ -351,7 +356,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                     onClick={handleAuthenticateOneDrive}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
-                    Connect OneDrive
+                    Reconnect OneDrive
                   </button>
                 )}
               </div>

@@ -34,7 +34,7 @@ export function AuthCallback() {
         console.error('Authentication error:', error, errorDescription);
         alertModal.showAlert({
           title: 'Authentication Failed',
-          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}`,
+          message: `${error}${errorDescription ? `\n${errorDescription}` : ''}\n\nYou can manually connect to OneDrive later from the Settings page.`,
           type: 'error'
         });
         navigate('/');
@@ -48,16 +48,16 @@ export function AuthCallback() {
           await MicrosoftService.handleAuthorizationCallback(code);
           console.log('Authentication successful!');
           alertModal.showAlert({
-            title: 'Connection Successful',
-            message: 'Successfully connected to Microsoft OneDrive! You can now upload invoices to OneDrive and sync them to Excel.',
+            title: 'OneDrive Connected!',
+            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
             type: 'success'
           });
           navigate('/');
         } catch (error) {
           console.error('Authorization code processing failed:', error);
           alertModal.showAlert({
-            title: 'Authentication Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+            title: 'OneDrive Connection Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
             type: 'error'
           });
           navigate('/');
@@ -69,16 +69,16 @@ export function AuthCallback() {
           await MicrosoftService.handleImplicitCallback(accessToken, hashParams);
           console.log('Authentication successful!');
           alertModal.showAlert({
-            title: 'Connection Successful',
-            message: 'Successfully connected to Microsoft OneDrive! You can now upload invoices to OneDrive and sync them to Excel.',
+            title: 'OneDrive Connected!',
+            message: 'Successfully connected to Microsoft OneDrive! Your invoices will now automatically sync to OneDrive and Excel.',
             type: 'success'
           });
           navigate('/');
         } catch (error) {
           console.error('Token processing failed:', error);
           alertModal.showAlert({
-            title: 'Authentication Failed',
-            message: `${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+            title: 'OneDrive Connection Failed',
+            message: `${error instanceof Error ? error.message : 'Unknown error'}. You can try connecting again from the Settings page.`,
             type: 'error'
           });
           navigate('/');
@@ -96,8 +96,8 @@ export function AuthCallback() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Completing Microsoft authentication...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we connect your account</p>
+        <p className="text-gray-600 font-medium">Connecting to OneDrive...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we set up your cloud storage</p>
       </div>
       
       {/* Alert Modal */}

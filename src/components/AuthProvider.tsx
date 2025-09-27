@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
 import { AuthModal } from './AuthModal';
 import { SettingsService } from '../services/settingsService';
+import { MicrosoftService } from '../services/microsoftService';
 
 interface AuthContextType {
   user: User | null;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [hasTriedAutoConnect, setHasTriedAutoConnect] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -70,10 +72,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } catch (error) {
           console.error('Failed to reload settings after login:', error);
         }
+        
+        // Auto-connect to OneDrive after successful login (only once per session)
+        if (!hasTriedAutoConnect) {
+          setHasTriedAutoConnect(true);
+          setTimeout(() => {
+            // Check if already connected to avoid unnecessary redirects
+            if (!MicrosoftService.isAuthenticated()) {
+              console.log('Auto-connecting to OneDrive after login...');
+              try {
+                MicrosoftService.initiateLogin();
+              } catch (error) {
+                console.error('Auto OneDrive connection failed:', error);
+                // Don't show error to user for auto-connect failure
+              }
+            }
+          }, 1000); // Small delay to ensure UI is ready
+        }
       }
       
       // Show/hide auth modal based on session
       setShowAuthModal(!session);
+      
+      // Reset auto-connect flag when user signs out
+      if (event === 'SIGNED_OUT') {
+        setHasTriedAutoConnect(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -82,6 +106,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     // Clear settings cache when signing out
     SettingsService.clearCache();
+    
+    // Reset auto-connect flag
+    setHasTriedAutoConnect(false);
     
     try {
       await supabase.auth.signOut();
