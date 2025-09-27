@@ -103,6 +103,12 @@ export class MicrosoftService {
       throw new Error('Microsoft service not configured');
     }
 
+    // Prevent duplicate processing
+    if (this.isAuthenticated()) {
+      console.log('Already authenticated, skipping callback processing');
+      return;
+    }
+
     console.log('Processing authorization code with PKCE...');
 
     // Retrieve stored PKCE verifier and state (try multiple storage locations)

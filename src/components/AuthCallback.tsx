@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MicrosoftService } from '../services/microsoftService';
 import { AlertModal } from './Modal';
@@ -7,11 +7,17 @@ import { useAlertModal } from '../hooks/useModal';
 export function AuthCallback() {
   const navigate = useNavigate();
   const alertModal = useAlertModal();
+  const [isProcessing, setIsProcessing] = useState(false);
   
   useEffect(() => {
+    // Prevent multiple executions
+    if (isProcessing) return;
+    
     const handleCallback = async () => {
       console.log('AuthCallback: Starting callback handling');
       console.log('Current URL:', window.location.href);
+      
+      setIsProcessing(true);
       
       // Check for authorization code or error
       const urlParams = new URLSearchParams(window.location.search);
@@ -39,7 +45,13 @@ export function AuthCallback() {
       }
 
       if (code) {
-        // Authorization code flow with PKCE
+        // Check if we're already authenticated to avoid duplicate processing
+        if (MicrosoftService.isAuthenticated()) {
+          console.log('Already authenticated, redirecting to home');
+          navigate('/');
+          return;
+        }
+
         try {
           console.log('Processing authorization code with PKCE...');
           
@@ -52,6 +64,9 @@ export function AuthCallback() {
           // Fetch user profile to complete authentication
           await MicrosoftService.fetchUserProfile();
           console.log('User profile fetched successfully');
+          
+          // Clear the URL to prevent reprocessing
+          window.history.replaceState({}, document.title, '/');
           
           alertModal.showAlert({
             title: 'Welcome!',
@@ -85,7 +100,7 @@ export function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate, alertModal]);
+  }, [navigate, alertModal, isProcessing]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

@@ -116,28 +116,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
-    // Listen for page visibility changes (when user returns from Microsoft auth)
-    const handleVisibilityChange = () => {
-      if (!document.hidden && !user && MicrosoftService.isAuthenticated()) {
-        console.log('AuthProvider: Page became visible and user authenticated, updating state...');
-        handleAuthSuccess();
-      }
-    };
+    // Only check for auth changes when not on callback page
+    if (!window.location.pathname.includes('/auth/callback')) {
+      // Listen for page visibility changes (when user returns from Microsoft auth)
+      const handleVisibilityChange = () => {
+        if (!document.hidden && !user && MicrosoftService.isAuthenticated()) {
+          console.log('AuthProvider: Page became visible and user authenticated, updating state...');
+          handleAuthSuccess();
+        }
+      };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Also check periodically in case the callback didn't trigger properly
-    const interval = setInterval(() => {
-      if (!user && MicrosoftService.isAuthenticated()) {
-        console.log('AuthProvider: Periodic check found authenticated user, updating state...');
-        handleAuthSuccess();
-      }
-    }, 1000);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearInterval(interval);
-    };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Also check periodically in case the callback didn't trigger properly
+      const interval = setInterval(() => {
+        if (!user && MicrosoftService.isAuthenticated()) {
+          console.log('AuthProvider: Periodic check found authenticated user, updating state...');
+          handleAuthSuccess();
+        }
+      }, 2000); // Reduced frequency
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        clearInterval(interval);
+      };
+    }
   }, [user]);
 
   const signOut = async () => {
