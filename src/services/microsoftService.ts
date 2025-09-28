@@ -246,7 +246,6 @@ export class MicrosoftService {
       ...options,
       headers: {
         'Authorization': `Bearer ${this.tokenData!.access_token}`,
-        'Content-Type': 'application/json',
         ...options.headers,
       },
     });
@@ -270,7 +269,21 @@ export class MicrosoftService {
       throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Handle responses that don't contain JSON
+    if (response.status === 204 || 
+        response.headers.get('Content-Length') === '0' ||
+        !response.headers.get('Content-Type')?.includes('application/json')) {
+      return null;
+    }
+
+    try {
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to parse JSON response:', error);
+      const responseText = await response.text().catch(() => 'Unable to read response text');
+      console.error('Raw response:', responseText);
+      throw new Error(`Failed to parse JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   static async uploadInvoiceToOneDrive(invoice: any, file: Blob): Promise<OneDriveUploadResult> {
@@ -569,6 +582,12 @@ export class MicrosoftService {
     try {
       // Try to get existing file
       const existingFile = await this.makeGraphRequest(`/me/drive/root:/${fileName}`);
+      
+      // Handle null response (file not found)
+      if (!existingFile) {
+        console.log('Excel file not found (null response), creating new one:', fileName);
+        return await this.createExcelFile(fileName);
+      }
       
       // Check if the file has the correct MIME type for Excel
       if (existingFile.file && existingFile.file.mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
