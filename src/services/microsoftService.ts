@@ -733,8 +733,12 @@ export class MicrosoftService {
         }),
       });
 
-      if (updateResponse.ok) {
+      if (updateResponse.ok) {       
         console.log('Successfully updated existing Excel row');
+
+        // After successful append, add HYPERLINK formula to column F
+        await this.addHyperlinkFormula(excelFileId, rowData);        
+        
         return true;
       } else {
         const errorText = await updateResponse.text();
