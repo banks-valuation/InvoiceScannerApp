@@ -28,20 +28,22 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   const alertModal = useAlertModal();
 
   useEffect(() => {
-    if (user) {
+    if (user && !isLoading) {
       loadInvoices();
     }
-  }, [user]);
+  }, [user, isLoading]);
 
    // Listen for invoice updates from background sync
    useEffect(() => {
      const handleInvoiceUpdate = () => {
-       loadInvoices();
+       if (user && !isLoading) {
+         loadInvoices();
+       }
      };
 
      window.addEventListener('invoiceUpdated', handleInvoiceUpdate);
      return () => window.removeEventListener('invoiceUpdated', handleInvoiceUpdate);
-   }, []);
+   }, [user, isLoading]);
 
   // Add timeout for loading state
   useEffect(() => {
