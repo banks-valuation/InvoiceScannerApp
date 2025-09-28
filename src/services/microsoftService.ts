@@ -583,6 +583,25 @@ export class MicrosoftService {
         return await this.createExcelFile(fileName);
       }
       
+      // Additional validation: try to access worksheets to ensure the file is a valid Excel workbook
+      try {
+        await this.makeGraphRequest(`/me/drive/items/${existingFile.id}/workbook/worksheets`);
+      } catch (worksheetError) {
+        if (worksheetError instanceof Error && worksheetError.message.includes('file format may not be matching')) {
+          console.log('Existing file is malformed (cannot access worksheets), deleting and recreating');
+          
+          // Delete the malformed file
+          await this.makeGraphRequest(`/me/drive/items/${existingFile.id}`, {
+            method: 'DELETE',
+          });
+          
+          // Create a new Excel file
+          return await this.createExcelFile(fileName);
+        }
+        // Re-throw other worksheet errors
+        throw worksheetError;
+      }
+      
       return existingFile;
     } catch (error) {
       if (error instanceof Error && error.message.includes('404')) {
