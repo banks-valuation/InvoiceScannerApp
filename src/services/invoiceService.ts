@@ -123,21 +123,30 @@ export class InvoiceService {
       console.log('Resyncing invoice to Excel:', invoice.id);
       
       try {
-        await MicrosoftService.updateInExcel({
+        const updateResult = await MicrosoftService.updateInExcel({
           ...invoice,
           onedrive_file_url: invoice.onedrive_file_url,
         });
-        console.log('Excel resync successful');
+        
+        if (updateResult.success) {
+          console.log('Excel resync successful');
+        } else {
+          throw new Error(updateResult.error || 'Update failed');
+        }
       } catch (error) {
         console.error('Excel resync failed:', error);
         // If update fails, it might be because the row doesn't exist
         // In that case, we should append it
         if (error instanceof Error && error.message.includes('not found in Excel')) {
           console.log('Row not found in Excel, appending instead');
-          await MicrosoftService.appendToExcel({
+          const appendResult = await MicrosoftService.appendToExcel({
             ...invoice,
             onedrive_file_url: invoice.onedrive_file_url,
           });
+          
+          if (!appendResult.success) {
+            throw new Error(appendResult.error || 'Append failed');
+          }
         } else {
           throw error;
         }

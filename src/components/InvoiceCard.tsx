@@ -105,11 +105,11 @@ export function InvoiceCard({ invoice, onEdit, onDelete, onInvoiceUpdate, userId
     setUploadError(null);
 
     try {
-      const result = await InvoiceService.uploadToOneDrive(invoice);
+      const result = await InvoiceService.resyncToExcel(invoice);
       
       if (result.success) {
         // Refresh the invoice data to show updated status
-        const updatedInvoices = await InvoiceService.getInvoices(user!.id);
+        const updatedInvoices = await InvoiceService.getInvoices(userId);
         const updatedInvoice = updatedInvoices.find(inv => inv.id === invoice.id);
         if (updatedInvoice && onInvoiceUpdate) {
           onInvoiceUpdate(updatedInvoice);
