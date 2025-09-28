@@ -815,9 +815,11 @@ export class MicrosoftService {
   // Ensure the Excel table exists in the workbook
   private static async ensureExcelTableExists(fileId: string): Promise<void> {
     // Get first worksheet name
-    const worksheetsResponse1 = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
-      headers: { 'Authorization': `Bearer ${this.accessToken}` }
-    });
+const fileMeta = await fetch(
+  `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`,
+  { headers: { 'Authorization': `Bearer ${this.accessToken}` } }
+);
+console.log(await fileMeta.json());
     
     const worksheetsResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets`, {
       headers: { 'Authorization': `Bearer ${this.accessToken}` }
