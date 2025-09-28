@@ -733,12 +733,8 @@ export class MicrosoftService {
         }),
       });
 
-      if (updateResponse.ok) {       
+      if (updateResponse.ok) {
         console.log('Successfully updated existing Excel row');
-
-        // After successful append, add HYPERLINK formula to column F
-        await this.addHyperlinkFormula(excelFileId, rowData);        
-        
         return true;
       } else {
         const errorText = await updateResponse.text();
@@ -815,12 +811,6 @@ export class MicrosoftService {
   // Ensure the Excel table exists in the workbook
   private static async ensureExcelTableExists(fileId: string): Promise<void> {
     // Get first worksheet name
-const fileMeta = await fetch(
-  `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`,
-  { headers: { 'Authorization': `Bearer ${this.accessToken}` } }
-);
-console.log(await fileMeta.json());
-    
     const worksheetsResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets`, {
       headers: { 'Authorization': `Bearer ${this.accessToken}` }
     });
