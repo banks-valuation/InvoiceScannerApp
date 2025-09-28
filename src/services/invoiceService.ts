@@ -151,6 +151,11 @@ export class InvoiceService {
           
           if (!appendResult.success) {
             //throw new Error(appendResult.error || 'Append failed');
+            console.error('Excel resync failed:', error);
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error occurred',
+            };            
           }
         } else {
           throw error;
