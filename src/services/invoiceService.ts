@@ -131,7 +131,12 @@ export class InvoiceService {
         if (updateResult?.success) {
           console.log('Excel resync successful');
         } else {
-          throw new Error(updateResult?.error || 'Update failed');
+          //throw new Error(updateResult?.error || 'Update failed');
+          console.error('Excel resync failed:', error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+          };          
         }
       } catch (error) {
         console.error('Excel resync failed:', error);
@@ -145,7 +150,7 @@ export class InvoiceService {
           });
           
           if (!appendResult.success) {
-            throw new Error(appendResult.error || 'Append failed');
+            //throw new Error(appendResult.error || 'Append failed');
           }
         } else {
           throw error;
