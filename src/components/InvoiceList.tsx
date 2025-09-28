@@ -92,9 +92,10 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     } catch (error) {
       console.error('Error loading invoices:', error);
       // Show error to user instead of staying stuck
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       alertModal.showAlert({
         title: 'Loading Failed',
-        message: 'Failed to load invoices. Please try refreshing the page.',
+        message: `Failed to load invoices: ${errorMessage}\n\nPlease check your internet connection and try refreshing the page.`,
         type: 'error'
       });
       // Set empty array so UI doesn't stay in loading state

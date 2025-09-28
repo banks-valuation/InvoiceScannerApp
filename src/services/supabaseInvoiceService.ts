@@ -53,6 +53,7 @@ export class SupabaseInvoiceService {
   static async getInvoices(userId: string): Promise<Invoice[]> {
     try {
       console.log('Fetching invoices from Supabase...');
+      console.log('Supabase URL being used:', import.meta.env.VITE_SUPABASE_URL?.substring(0, 30) + '...');
 
       const queryId = `query_${Date.now()}_${Math.random()}`;
       console.time(queryId);
@@ -65,13 +66,28 @@ export class SupabaseInvoiceService {
 
       if (error) {
         console.error('Supabase query error:', error);
-        throw new Error(`Failed to fetch invoices: ${error.message}`);
+        throw new Error(`Failed to fetch invoices: ${error.message} (Code: ${error.code || 'unknown'})`);
       }
 
       console.log('Successfully fetched invoices:', data?.length || 0);
       return data || [];
     } catch (error) {
       console.error('Error fetching invoices:', error);
+      
+      // Provide more specific error information
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.error('Network error details:', {
+          message: 'Cannot connect to Supabase',
+          possibleCauses: [
+            'Incorrect VITE_SUPABASE_URL in .env file',
+            'Supabase project is paused or deleted',
+            'Network connectivity issues',
+            'CORS configuration problems'
+          ]
+        });
+        throw new Error('Cannot connect to Supabase. Please check your environment variables and network connection.');
+      }
+      
       throw error;
     }
   }
