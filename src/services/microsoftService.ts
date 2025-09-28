@@ -482,77 +482,49 @@ export class MicrosoftService {
   }
 
   // Sync invoice data to Excel (append or update)
-  private static async syncToExcel(invoiceData: any, operation: 'append' | 'update'): Promise<void> {
+private static async syncToExcel(invoiceData: any, operation: 'append' | 'update') {
+  try {
     const hasValidToken = await this.ensureValidToken();
     if (!hasValidToken) {
-      throw new Error('Authentication required. Please connect to Microsoft OneDrive first.');
+      return { success: false, error: 'Authentication required' };
     }
 
-    // Get settings for Excel file configuration
     const settings = JSON.parse(localStorage.getItem('app_settings') || '{}');
     const excelFileName = settings.onedrive?.excelFileName || 'Invoice_Tracker.xlsx';
+    const excelFileId = await this.ensureExcelFileExists(excelFileName);
+    await this.ensureExcelTableExists(excelFileId);
 
-    try {
-      // First, find or create the Excel file
-      const excelFileId = await this.ensureExcelFileExists(excelFileName);
-      console.log('excelFileId: ' + excelFileId);
-      
-      // Ensure the table exists before trying to append
-      await this.ensureExcelTableExists(excelFileId);
+    const rowData = [
+      invoiceData.sequence_id || 0,
+      invoiceData.customer_name,
+      invoiceData.invoice_date,
+      invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
+      invoiceData.invoice_amount,
+      '', 
+      this.createDisplayFileName(invoiceData),
+      invoiceData.onedrive_file_url || ''
+    ];
 
-      // Create meaningful filename for display in Excel
-      const fileName = this.createDisplayFileName(invoiceData);
-
-      // Prepare the row data
-      const rowData = [
-        invoiceData.sequence_id || 0,
-        invoiceData.customer_name,
-        invoiceData.invoice_date,
-        invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
-        invoiceData.invoice_amount,
-        '', // Column F will be filled with HYPERLINK formula
-        fileName, // Column G: Filename
-        invoiceData.onedrive_file_url || '', // Column H: Plain URL
-      ];
-      
-
-      if (operation === 'update') {
-        // For update operations, always check if row exists first
-        console.log('Update operation: checking for existing row');
-        
-        // Check if this exact invoice already exists in Excel
-        const existingRowFound = await this.findExistingRow(excelFileId, invoiceData);
-        
-        if (existingRowFound) {
-          console.log('Found existing row, updating it');
-          const updated = await this.updateExistingRow(excelFileId, invoiceData, rowData);
-          if (!updated) {
-            console.log('Update failed, but row exists - not appending to avoid duplicates');
-            throw new Error('Failed to update existing Excel row');
-          }
-        } else {
-          console.log('No existing row found for update operation, appending as new row instead');
-          await this.appendRowToExcel(excelFileId, rowData);
-        }
+    if (operation === 'update') {
+      const existingRowFound = await this.findExistingRow(excelFileId, invoiceData);
+      if (existingRowFound) {
+        const updated = await this.updateExistingRow(excelFileId, invoiceData, rowData);
+        if (!updated) return { success: false, error: 'Failed to update existing Excel row' };
       } else {
-        // For append operations, check for duplicates first
-        console.log('Append operation: checking for duplicates');
-        
-        const existingRowFound = await this.findExistingRow(excelFileId, invoiceData);
-        
-        if (existingRowFound) {
-          console.log('Duplicate found, not appending');
-          throw new Error('Invoice already exists in Excel');
-        } else {
-          console.log('No duplicate found, appending new row');
-          await this.appendRowToExcel(excelFileId, rowData);
-        }
+        await this.appendRowToExcel(excelFileId, rowData);
       }
-    } catch (error) {
-      console.error('Excel append failed:', error);
-      throw error;
+    } else {
+      const existingRowFound = await this.findExistingRow(excelFileId, invoiceData);
+      if (existingRowFound) return { success: false, error: 'Invoice already exists in Excel' };
+      await this.appendRowToExcel(excelFileId, rowData);
     }
+
+    return { success: true }; // ✅ important: return a success object
+  } catch (error: any) {
+    console.error('Excel operation failed:', error);
+    return { success: false, error: error.message || error };
   }
+}
 
   // Create a meaningful display filename for Excel
   private static createDisplayFileName(invoiceData: any): string {
