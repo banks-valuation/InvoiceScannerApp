@@ -15,6 +15,7 @@ MicrosoftService.configure({
   redirectUri: window.location.origin + '/auth/callback',
   scopes: [
     'https://graph.microsoft.com/Files.ReadWrite',
+    'https://graph.microsoft.com/Files.ReadWrite.All',
     'https://graph.microsoft.com/Sites.ReadWrite.All'
   ]
 });
