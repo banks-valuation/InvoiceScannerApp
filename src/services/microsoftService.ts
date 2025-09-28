@@ -33,6 +33,7 @@ export class MicrosoftService {
   private static config: MicrosoftConfig | null = null;
   private static tokenData: TokenData | null = null;
   private static readonly TOKEN_STORAGE_KEY = 'microsoft_token_data';
+  private static readonly CODE_VERIFIER_KEY = 'microsoft_code_verifier';
 
   static configure(config: MicrosoftConfig) {
     this.config = config;
@@ -60,6 +61,25 @@ export class MicrosoftService {
     return true;
   }
 
+  private static generateCodeVerifier(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode.apply(null, Array.from(array)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  private static async generateCodeChallenge(verifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
   static checkTokenValidity(): { isValid: boolean; expiresAt?: number; timeRemaining?: number } {
     if (!this.tokenData) {
       return { isValid: false };
@@ -76,10 +96,17 @@ export class MicrosoftService {
     };
   }
 
-  static initiateLogin(): void {
+  static async initiateLogin(): Promise<void> {
     if (!this.config) {
       throw new Error('Microsoft service not configured');
     }
+
+    // Generate PKCE parameters
+    const codeVerifier = this.generateCodeVerifier();
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+    
+    // Store code verifier for later use
+    localStorage.setItem(this.CODE_VERIFIER_KEY, codeVerifier);
 
     const authUrl = new URL('https://login.microsoftonline.com/common/oauth2/v2.0/authorize');
     authUrl.searchParams.set('client_id', this.config.clientId);
@@ -88,6 +115,8 @@ export class MicrosoftService {
     authUrl.searchParams.set('scope', this.config.scopes.join(' '));
     authUrl.searchParams.set('response_mode', 'query');
     authUrl.searchParams.set('state', Math.random().toString(36).substring(2));
+    authUrl.searchParams.set('code_challenge', codeChallenge);
+    authUrl.searchParams.set('code_challenge_method', 'S256');
 
     console.log('Redirecting to Microsoft login:', authUrl.toString());
     window.location.href = authUrl.toString();
@@ -99,6 +128,12 @@ export class MicrosoftService {
     }
 
     try {
+      // Retrieve code verifier from storage
+      const codeVerifier = localStorage.getItem(this.CODE_VERIFIER_KEY);
+      if (!codeVerifier) {
+        throw new Error('Code verifier not found. Please restart the authentication process.');
+      }
+
       const tokenUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
       const body = new URLSearchParams({
         client_id: this.config.clientId,
@@ -106,6 +141,7 @@ export class MicrosoftService {
         code: code,
         redirect_uri: this.config.redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       });
 
       const response = await fetch(tokenUrl, {
@@ -129,9 +165,14 @@ export class MicrosoftService {
       this.tokenData = tokenData;
       this.saveTokenData();
       
+      // Clean up code verifier
+      localStorage.removeItem(this.CODE_VERIFIER_KEY);
+      
       console.log('Microsoft authentication successful');
     } catch (error) {
       console.error('Authorization callback failed:', error);
+      // Clean up code verifier on error
+      localStorage.removeItem(this.CODE_VERIFIER_KEY);
       throw error;
     }
   }
@@ -161,6 +202,7 @@ export class MicrosoftService {
 
   static logout(): void {
     this.clearTokenData();
+    localStorage.removeItem(this.CODE_VERIFIER_KEY);
     console.log('Microsoft logout completed');
   }
 
@@ -190,6 +232,7 @@ export class MicrosoftService {
   private static clearTokenData(): void {
     this.tokenData = null;
     localStorage.removeItem(this.TOKEN_STORAGE_KEY);
+    localStorage.removeItem(this.CODE_VERIFIER_KEY);
   }
 
   private static async makeGraphRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
