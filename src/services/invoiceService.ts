@@ -131,12 +131,7 @@ export class InvoiceService {
         if (updateResult?.success) {
           console.log('Excel resync successful');
         } else {
-          //throw new Error(updateResult?.error || 'Update failed');
-          console.error('Excel resync failed:', error);
-          return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error occurred',
-          };          
+          throw new Error(updateResult?.error || 'Update failed');        
         }
       } catch (error) {
         console.error('Excel resync failed:', error);
@@ -150,12 +145,7 @@ export class InvoiceService {
           });
           
           if (!appendResult.success) {
-            //throw new Error(appendResult.error || 'Append failed');
-            console.error('Excel resync failed:', error);
-            return {
-              success: false,
-              error: error instanceof Error ? error.message : 'Unknown error occurred',
-            };            
+            throw new Error(appendResult.error || 'Append failed');          
           }
         } else {
           throw error;
