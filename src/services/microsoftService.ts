@@ -580,13 +580,26 @@ export class MicrosoftService {
 
   private static async getOrCreateExcelFile(fileName: string): Promise<DriveItem> {
     try {
+      // Parse the fileName to extract directory path and file name
+      const pathParts = fileName.split('/');
+      const actualFileName = pathParts.pop() || fileName;
+      const directoryPath = pathParts.length > 0 ? pathParts.join('/') : '';
+      
+      // Ensure the directory exists if there's a path
+      if (directoryPath) {
+        await this.ensureDirectoryExists(directoryPath);
+      }
+      
+      // Construct the full file path for API calls
+      const fullFilePath = directoryPath ? `${directoryPath}/${actualFileName}` : actualFileName;
+      
       // Try to get existing file
-      const existingFile = await this.makeGraphRequest(`/me/drive/root:/${fileName}`);
+      const existingFile = await this.makeGraphRequest(`/me/drive/root:/${fullFilePath}`);
       
       // Handle null response (file not found)
       if (!existingFile) {
-        console.log('Excel file not found (null response), creating new one:', fileName);
-        return await this.createExcelFile(fileName);
+        console.log('Excel file not found (null response), creating new one:', fullFilePath);
+        return await this.createExcelFileInDirectory(actualFileName, directoryPath);
       }
       
       // Check if the file has the correct MIME type for Excel
@@ -599,7 +612,7 @@ export class MicrosoftService {
         });
         
         // Create a new Excel file
-        return await this.createExcelFile(fileName);
+        return await this.createExcelFileInDirectory(actualFileName, directoryPath);
       }
       
       // Additional validation: try to access worksheets to ensure the file is a valid Excel workbook
@@ -615,7 +628,7 @@ export class MicrosoftService {
           });
           
           // Create a new Excel file
-          return await this.createExcelFile(fileName);
+          return await this.createExcelFileInDirectory(actualFileName, directoryPath);
         }
         // Re-throw other worksheet errors
         throw worksheetError;
@@ -625,17 +638,22 @@ export class MicrosoftService {
     } catch (error) {
       if (error instanceof Error && error.message.includes('404')) {
         // File doesn't exist, create it
-        console.log('Excel file not found, creating new one:', fileName);
-        return await this.createExcelFile(fileName);
+        console.log('Excel file not found, creating new one:', fullFilePath);
+        return await this.createExcelFileInDirectory(actualFileName, directoryPath);
       }
       throw error;
     }
   }
 
-  private static async createExcelFile(fileName: string): Promise<DriveItem> {
+  private static async createExcelFileInDirectory(fileName: string, directoryPath: string): Promise<DriveItem> {
     try {
+      // Determine the parent endpoint
+      const parentEndpoint = directoryPath 
+        ? `/me/drive/root:/${directoryPath}:/children`
+        : '/me/drive/root/children';
+      
       // Create a new Excel workbook
-      const workbook = await this.makeGraphRequest('/me/drive/root/children', {
+      const workbook = await this.makeGraphRequest(parentEndpoint, {
         method: 'POST',
         body: JSON.stringify({
           name: fileName,
