@@ -87,7 +87,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     try {
       console.log('Starting to load invoices...');
       //const data = await InvoiceService.getInvoices(user.id);
-      const data = await withTimeout(InvoiceService.getInvoices(user.id), 10000);
+      const data = await withTimeout(InvoiceService.getInvoices(user.id), 30000);
       console.log('Loaded invoices:', data.length);
       setInvoices(data);
     } catch (error) {
