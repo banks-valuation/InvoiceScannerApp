@@ -19,6 +19,8 @@ MicrosoftService.configure({
   ]
 });
 
+// Console log the redirect URI for debugging
+console.log('Microsoft redirect URI:', `${window.location.protocol}//${window.location.host}/auth/callback`);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
