@@ -54,7 +54,7 @@ export class SupabaseInvoiceService {
     try {
       console.log('Fetching invoices from Supabase...');
 
-      console.time("query");
+      console.time("query-" + Date.now())
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
