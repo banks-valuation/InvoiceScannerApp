@@ -12,7 +12,7 @@ import './index.css';
 MicrosoftService.configure({
   clientId: '9117a1ac-c6b7-4222-8e11-290d5cca0bcc', // Replace with your Azure app Client ID
   tenantId: '4057aa25-ad69-450c-a984-349410211e98', // Replace with your Azure app Tenant ID
-  redirectUri: window.location.origin + '/auth/callback',
+  redirectUri: `${window.location.protocol}//${window.location.host}/auth/callback`,
   scopes: [
     'https://graph.microsoft.com/Files.ReadWrite',
     'https://graph.microsoft.com/Sites.ReadWrite.All'
