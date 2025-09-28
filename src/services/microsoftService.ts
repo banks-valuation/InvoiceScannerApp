@@ -568,7 +568,22 @@ export class MicrosoftService {
   private static async getOrCreateExcelFile(fileName: string): Promise<DriveItem> {
     try {
       // Try to get existing file
-      return await this.makeGraphRequest(`/me/drive/root:/${fileName}`);
+      const existingFile = await this.makeGraphRequest(`/me/drive/root:/${fileName}`);
+      
+      // Check if the file has the correct MIME type for Excel
+      if (existingFile.file && existingFile.file.mimeType !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        console.log('Existing file has incorrect MIME type, deleting and recreating:', existingFile.file.mimeType);
+        
+        // Delete the malformed file
+        await this.makeGraphRequest(`/me/drive/items/${existingFile.id}`, {
+          method: 'DELETE',
+        });
+        
+        // Create a new Excel file
+        return await this.createExcelFile(fileName);
+      }
+      
+      return existingFile;
     } catch (error) {
       if (error instanceof Error && error.message.includes('404')) {
         // File doesn't exist, create it
