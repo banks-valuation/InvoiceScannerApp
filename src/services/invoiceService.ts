@@ -127,6 +127,8 @@ export class InvoiceService {
           ...invoice,
           onedrive_file_url: invoice.onedrive_file_url,
         });
+
+        console.log('updateResult:', updateResult);
         
         if (updateResult?.success) {
           console.log('Excel resync successful');
