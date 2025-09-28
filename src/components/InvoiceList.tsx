@@ -28,10 +28,10 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   const alertModal = useAlertModal();
 
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user) {
       loadInvoices();
     }
-  }, [user, isLoading]);
+  }, [user]);
 
    // Listen for invoice updates from background sync
    useEffect(() => {
