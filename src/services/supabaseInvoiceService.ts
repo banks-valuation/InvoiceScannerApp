@@ -54,13 +54,14 @@ export class SupabaseInvoiceService {
     try {
       console.log('Fetching invoices from Supabase...');
 
-      console.time("query-" + Date.now())
+      invoiceFetchQuery = "query-" + Date.now();
+      console.time(invoiceFetchQuery)
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      console.timeEnd("query");
+      console.timeEnd(invoiceFetchQuery);
 
       if (error) {
         console.error('Supabase query error:', error);
