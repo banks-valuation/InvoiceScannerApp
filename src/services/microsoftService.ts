@@ -706,6 +706,10 @@ private static async syncToExcel(invoiceData: any, operation: 'append' | 'update
       });
 
       if (updateResponse.ok) {
+
+        // After successful append, add HYPERLINK formula to column F
+        await this.addHyperlinkFormula(excelFileId, rowData);        
+        
         console.log('Successfully updated existing Excel row');
         return true;
       } else {
