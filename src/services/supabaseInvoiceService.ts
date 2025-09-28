@@ -54,7 +54,7 @@ export class SupabaseInvoiceService {
     try {
       console.log('Fetching invoices from Supabase...');
 
-      invoiceFetchQuery = "query-" + Date.now();
+      const invoiceFetchQuery = "query-" + Date.now();
       console.time(invoiceFetchQuery)
       const { data, error } = await supabase
         .from('invoices')
