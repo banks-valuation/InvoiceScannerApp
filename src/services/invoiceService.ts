@@ -128,10 +128,10 @@ export class InvoiceService {
           onedrive_file_url: invoice.onedrive_file_url,
         });
         
-        if (updateResult.success) {
+        if (updateResult?.success) {
           console.log('Excel resync successful');
         } else {
-          throw new Error(updateResult.error || 'Update failed');
+          throw new Error(updateResult?.error || 'Update failed');
         }
       } catch (error) {
         console.error('Excel resync failed:', error);
