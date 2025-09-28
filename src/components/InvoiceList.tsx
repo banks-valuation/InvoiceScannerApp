@@ -6,6 +6,8 @@ import { ConfirmModal, AlertModal } from './Modal';
 import { useConfirmModal, useAlertModal } from '../hooks/useModal';
 import { Invoice } from '../types/invoice';
 import { InvoiceService } from '../services/invoiceService';
+import { withTimeout } from '../lib/promiseUtils';
+
 
 interface InvoiceListProps {
   onAddInvoice: () => void;
@@ -84,7 +86,8 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     setIsLoading(true);
     try {
       console.log('Starting to load invoices...');
-      const data = await InvoiceService.getInvoices(user.id);
+      //const data = await InvoiceService.getInvoices(user.id);
+      const data = await withTimeout(InvoiceService.getInvoices(user.id), 10000);
       console.log('Loaded invoices:', data.length);
       setInvoices(data);
     } catch (error) {
