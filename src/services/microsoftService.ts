@@ -1030,7 +1030,7 @@ private static async syncToExcel(invoiceData: any, operation: 'append' | 'update
         const errorText = await formulaResponse.text();
         console.warn('Failed to add HYPERLINK formula:', errorText);
       } else {
-        console.log('Successfully added HYPERLINK formula to column F');
+        console.log('Successfully added HYPERLINK formula to column F row: ' + targetRow);
       }
     } catch (error) {
       console.warn('Error adding HYPERLINK formula:', error);
