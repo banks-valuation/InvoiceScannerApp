@@ -76,9 +76,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Clear settings cache and reload when user signs in
       if (event === 'SIGNED_IN' && session?.user) {
         SettingsService.clearCache();
+        console.log('User signed in, clearing settings cache and reloading');
         try {
           // Preload settings from database to sync with other devices
-          await SettingsService.getSettings(session.user);
+          const loadedSettings = await SettingsService.getSettings(session.user);
+          console.log('Settings loaded after sign in:', loadedSettings);
         } catch (error) {
           console.error('Failed to reload settings after login:', error);
         }

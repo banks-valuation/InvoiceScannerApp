@@ -8,20 +8,24 @@ export class SettingsService {
   static async getSettings(user?: any): Promise<AppSettings> {
     // Return cached settings immediately if available
     if (this.cachedSettings) {
+      console.log('Returning cached settings');
       return this.cachedSettings;
     }
+
+    console.log('Loading settings from database...');
 
     try {
       let currentUser = user;
 
       // Only check authentication if user not provided
       if (!currentUser) {
+        console.log('No user provided, checking authentication...');
         const authPromise = supabase.auth.getUser()
           .then(result => ({ result, timeout: false }))
           .catch(err => ({ error: err, timeout: false }));
 
         const authTimeoutPromise = new Promise(resolve =>
-          setTimeout(() => resolve({ timeout: true }), 10000)
+          setTimeout(() => resolve({ timeout: true }), 5000)
         );
 
         const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
@@ -41,18 +45,23 @@ export class SettingsService {
             return localSettings;
           }
           console.error('Auth error when fetching settings:', authResult.error);
-          throw new Error(`Authentication error: ${authResult.error.message}`);
+          const localSettings = this.getLocalSettings();
+          this.cachedSettings = localSettings;
+          return localSettings;
         }
 
         currentUser = authResult.result?.data?.user;
       }
 
       if (!currentUser) {
+        console.log('No authenticated user found, using localStorage settings');
         // If not authenticated, fall back to localStorage
         const localSettings = this.getLocalSettings();
         this.cachedSettings = localSettings;
         return localSettings;
       }
+
+      console.log('Authenticated user found, fetching from database:', currentUser.id);
 
       // Try to get settings from database with timeout
       const dbPromise = supabase
@@ -64,7 +73,7 @@ export class SettingsService {
         .catch(err => ({ error: err, timeout: false }));
 
       const dbTimeoutPromise = new Promise(resolve =>
-        setTimeout(() => resolve({ timeout: true }), 15000)
+        setTimeout(() => resolve({ timeout: true }), 8000)
       );
 
       const dbResult = await Promise.race([dbPromise, dbTimeoutPromise]) as any;
@@ -93,6 +102,7 @@ export class SettingsService {
       }
 
       if (data?.settings) {
+        console.log('Settings found in database:', data.settings);
         // Merge with defaults to ensure all properties exist
         const dbSettings = {
           ...DEFAULT_SETTINGS,
@@ -108,21 +118,28 @@ export class SettingsService {
         };
 
         this.cachedSettings = dbSettings;
+        // Also save to localStorage as backup
+        this.saveLocalSettings(dbSettings);
         return dbSettings;
       }
 
+      console.log('No settings found in database, checking localStorage for migration');
       // No settings found in database, check localStorage for migration
       const localSettings = this.getLocalSettings();
       if (localSettings !== DEFAULT_SETTINGS) {
+        console.log('Migrating localStorage settings to database');
         // Migrate localStorage settings to database
         try {
           await this.saveSettings(localSettings);
+          console.log('Settings migration successful');
         } catch (migrationError) {
           console.warn('Settings migration failed:', migrationError);
         }
+        this.cachedSettings = localSettings;
         return localSettings;
       }
 
+      console.log('Using default settings');
       this.cachedSettings = DEFAULT_SETTINGS;
       return DEFAULT_SETTINGS;
     } catch (error) {
