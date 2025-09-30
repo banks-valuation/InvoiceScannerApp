@@ -4,7 +4,7 @@ export interface Invoice {
   customer_name: string;
   invoice_date: string;
   invoice_amount: number;
-  description_category: 'Massage Therapy' | 'Physio Therapy' | 'Dentist' | 'Prescription Medication' | 'Vision' | 'Other';
+  description_category: 'Massage Therapy' | 'Physio Therapy' | 'Dental' | 'Prescription Medication' | 'Vision' | 'Other';
   description_other?: string;
   file_url: string;
   file_type: 'image' | 'pdf';
