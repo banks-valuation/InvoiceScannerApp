@@ -18,7 +18,7 @@ interface InvoiceFormProps {
 const DESCRIPTION_OPTIONS = [
   'Massage Therapy',
   'Physio Therapy', 
-  'Dental',
+  'Dentist',
   'Prescription Medication',
   'Vision',
   'Other'
