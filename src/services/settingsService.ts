@@ -25,7 +25,7 @@ export class SettingsService {
           .catch(err => ({ error: err, timeout: false }));
 
         const authTimeoutPromise = new Promise(resolve =>
-          setTimeout(() => resolve({ timeout: true }), 5000)
+          setTimeout(() => resolve({ timeout: true }), 15000)
         );
 
         const authResult = await Promise.race([authPromise, authTimeoutPromise]) as any;
