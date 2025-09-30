@@ -30,6 +30,14 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
   useEffect(() => {
     if (user) {
       loadInvoices();
+    } else {
+      // Clear all state when user is null
+      setInvoices([]);
+      setFilteredInvoices([]);
+      setGroupedInvoices({});
+      setSearchTerm('');
+      setSelectedCategory('All');
+      setIsLoading(false);
     }
   }, [user]);
 
@@ -56,17 +64,6 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
 
     return () => clearTimeout(timeout);
   }, [isLoading]);
-
-  // Clear invoices when user signs out
-  useEffect(() => {
-    if (!user) {
-      setInvoices([]);
-      setFilteredInvoices([]);
-      setGroupedInvoices({});
-      setSearchTerm('');
-      setSelectedCategory('All');
-    }
-  }, [user]);
 
   useEffect(() => {
     filterInvoices();
@@ -556,7 +553,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
                                   onEdit={onEditInvoice}
                                   onDelete={handleDelete}
                                   onInvoiceUpdate={handleInvoiceUpdate}
-                                  userId={user!.id}
+                                  userId={user?.id || ''}
                                 />
                               ))}
                             </div>
