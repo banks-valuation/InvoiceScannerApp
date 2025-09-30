@@ -128,14 +128,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await supabase.auth.signOut();
     } catch (error: any) {
-      // Handle case where session doesn't exist on server
-      if (error?.message?.includes('Session from session_id claim in JWT does not exist')) {
+      console.log('Logout error:', error);
+      
+      // Handle various logout error scenarios
+      if (error?.message?.includes('Session from session_id claim in JWT does not exist') ||
+          error?.status === 403 ||
+          error?.message?.includes('Forbidden') ||
+          error?.message?.includes('Invalid session')) {
         // Manually update local state to reflect logged-out state
+        console.log('Handling logout error by clearing local session');
         setSession(null);
         setUser(null);
         setShowAuthModal(true);
+        
+        // Also clear any stored auth tokens
+        localStorage.removeItem('supabase.auth.token');
+        
+        // Force a page reload to ensure clean state
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       } else {
         // Re-throw other errors
+        console.error('Unexpected logout error:', error);
         throw error;
       }
     }
