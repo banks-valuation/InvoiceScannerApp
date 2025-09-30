@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     excelFilePath: '',
   },
   general: {
-    defaultCategory: 'Massage Therapy',
+    defaultCategory: 'Dental',
     autoExtractOCR: true,
   },
 };

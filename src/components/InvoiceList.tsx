@@ -345,7 +345,7 @@ export function InvoiceList({ onAddInvoice, onEditInvoice, onShowSettings }: Inv
     return filteredInvoices.reduce((sum, invoice) => sum + invoice.invoice_amount, 0);
   };
 
-  const categories = ['All', 'Massage Therapy', 'Physio Therapy', 'Dentist', 'Prescription Medication', 'Vision', 'Other'];
+  const categories = ['All', 'Massage Therapy', 'Physio Therapy', 'Dental', 'Prescription Medication', 'Vision', 'Other'];
 
   if (isLoading) {
     return (

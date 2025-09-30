@@ -483,7 +483,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                 >
                   <option value="Massage Therapy">Massage Therapy</option>
                   <option value="Physio Therapy">Physio Therapy</option>
-                  <option value="Dentist">Dentist</option>
+                  <option value="Dental">Dental</option>
                   <option value="Prescription Medication">Prescription Medication</option>
                   <option value="Vision">Vision</option>
                   <option value="Other">Other</option>
