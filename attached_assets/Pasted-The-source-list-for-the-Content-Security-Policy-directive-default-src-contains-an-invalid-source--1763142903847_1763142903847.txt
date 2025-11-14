@@ -1,0 +1,259 @@
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+InvoiceScannerApp:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+InvoiceScannerApp:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+InvoiceScannerApp:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+ [Coframe] Replit Enterprise watcher loaded
+ 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+ Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+ [LaunchDarkly] LaunchDarkly client initialized
+ Cache data may be lost when replacing the dealContext field of a Org object.
+
+This could cause additional (usually avoidable) network requests to fetch data that were otherwise cached.
+
+To address this problem (which is not a bug in Apollo Client), either ensure all objects of type OrgDealContext have an ID or a custom merge function, or define a custom merge function for the Org.dealContext field, so InMemoryCache can safely merge these objects:
+
+  existing: {"__typename":"OrgDealContext","dealType":"default","salesContactEmail":null}
+  incoming: {"__typename":"OrgDealContext","dealType":"default"}
+
+For more information about these options, please refer to the documentation:
+
+  * Ensuring entity objects have IDs: https://go.apollo.dev/c/generating-unique-identifiers
+  * Defining custom merge functions: https://go.apollo.dev/c/merging-non-normalized-objects
+
+overrideMethod @ installHook.js:1
+InvoiceScannerApp:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+ Unrecognized feature: 'ambient-light-sensor'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'battery'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'execution-while-not-rendered'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'execution-while-out-of-viewport'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'layout-animations'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'legacy-image-formats'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'navigation-override'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'oversized-images'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'publickey-credentials'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'speaker-selection'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'unoptimized-images'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'unsized-media'.
+z @ ed1e693c96a75807.js:2
+ Unrecognized feature: 'pointer-lock'.
+z @ ed1e693c96a75807.js:2
+ Allow attribute will take precedence over 'allowfullscreen'.
+z @ ed1e693c96a75807.js:2
+ Allow attribute will take precedence over 'allowpaymentrequest'.
+z @ ed1e693c96a75807.js:2
+ Cache data may be lost when replacing the hostingBuildDeployActionUpdates field of a Subscription object.
+
+This could cause additional (usually avoidable) network requests to fetch data that were otherwise cached.
+
+To address this problem (which is not a bug in Apollo Client), either ensure all objects of type HostingBuildDeployLogAction and HostingBuildDeployStatusAction have an ID or a custom merge function, or define a custom merge function for the Subscription.hostingBuildDeployActionUpdates field, so InMemoryCache can safely merge these objects:
+
+  existing: {"__typename":"HostingBuildDeployLogAction","log":"\r\u001b[38;2;169;169;169m2025-11-14T17:23:31Z\u001b[37m \u001b[32minfo\u001b[37m: Builder connected\r\n"}
+  incoming: {"__typename":"HostingBuildDeployStatusAction","status":"building","message":null,"debugSummary":null}
+
+For more information about these options, please refer to the documentation:
+
+  * Ensuring entity objects have IDs: https://go.apollo.dev/c/generating-unique-identifiers
+  * Defining custom merge functions: https://go.apollo.dev/c/merging-non-normalized-objects
+
+overrideMethod @ installHook.js:1
+(anonymous) @ b03297988bde8e42.js:2
+(anonymous) @ a7c0490788bff592.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+e.writeToStore @ e84d37ab8b142723.js:2
+r.write @ e84d37ab8b142723.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+next @ 1b224bbc8db79db2.js:2
+m @ 1b224bbc8db79db2.js:2
+_ @ 1b224bbc8db79db2.js:2
+r.next @ 1b224bbc8db79db2.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+H @ e84d37ab8b142723.js:2
+next @ e84d37ab8b142723.js:2
+m @ 1b224bbc8db79db2.js:2
+_ @ 1b224bbc8db79db2.js:2
+r.next @ 1b224bbc8db79db2.js:2
+m @ 1b224bbc8db79db2.js:2
+_ @ 1b224bbc8db79db2.js:2
+r.next @ 1b224bbc8db79db2.js:2
+onNext @ e84d37ab8b142723.js:2
+m @ 1b224bbc8db79db2.js:2
+_ @ 1b224bbc8db79db2.js:2
+r.next @ 1b224bbc8db79db2.js:2
+next @ e84d37ab8b142723.js:2
+m @ 1b224bbc8db79db2.js:2
+_ @ 1b224bbc8db79db2.js:2
+r.next @ 1b224bbc8db79db2.js:2
+(anonymous) @ e84d37ab8b142723.js:2
+emit @ e84d37ab8b142723.js:2
+emit @ e84d37ab8b142723.js:2
+a.onmessage @ e84d37ab8b142723.js:2
+ WARN: A component changed from uncontrolled to controlled.
+overrideMethod @ installHook.js:1
+attached_assets/image_1763141600257.png:1  Failed to load resource: the server responded with a status of 404 ()
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'battery'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar1pg%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+[Violation] Potential permissions policy violation: autoplay is not allowed in this document.
+[Violation] Potential permissions policy violation: camera is not allowed in this document.
+[Violation] Potential permissions policy violation: encrypted-media is not allowed in this document.
+[Violation] Potential permissions policy violation: fullscreen is not allowed in this document.
+[Violation] Potential permissions policy violation: geolocation is not allowed in this document.
+[Violation] Potential permissions policy violation: microphone is not allowed in this document.
+[Violation] Potential permissions policy violation: midi is not allowed in this document.
+[Violation] Potential permissions policy violation: payment is not allowed in this document.
+[Violation] Potential permissions policy violation: sync-xhr is not allowed in this document.
+[Violation] Potential permissions policy violation: usb is not allowed in this document.
+[Violation] Potential permissions policy violation: accelerometer is not allowed in this document.
+[Violation] Potential permissions policy violation: gyroscope is not allowed in this document.
+[Violation] Potential permissions policy violation: magnetometer is not allowed in this document.
+[Violation] Potential permissions policy violation: picture-in-picture is not allowed in this document.
+[Violation] Potential permissions policy violation: screen-wake-lock is not allowed in this document.
+[Violation] Potential permissions policy violation: xr-spatial-tracking is not allowed in this document.
+[Violation] Potential permissions policy violation: clipboard-read is not allowed in this document.
+[Violation] Potential permissions policy violation: clipboard-write is not allowed in this document.
+[Violation] Potential permissions policy violation: web-share is not allowed in this document.
+[Violation] Potential permissions policy violation: gamepad is not allowed in this document.
+[Violation] Potential permissions policy violation: display-capture is not allowed in this document.
+ Supabase configuration: [object Object]
+ Microsoft redirect URI: https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback
+ User signed in, clearing settings cache and reloading
+ Loading settings from database...
+ Authenticated user found, fetching from database: 833b83dc-30ef-4df5-ad56-51979811a728
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+(anonymous) @ 93dba834-e659-4978-9…ools/injected.js:27
+ ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+(anonymous) @ 93dba834-e659-4978-9…ools/injected.js:27
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ Database query timed out, falling back to localStorage
+(anonymous) @ 93dba834-e659-4978-9…ools/injected.js:27
+ Settings loaded after sign in: [object Object]
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ query_1763142716210_0.4580477941098974: 8309.385009765625 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763142716210_0.7327047163112789: 8381.388916015625 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763142724284_0.7305435490936114: 369.158935546875 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763142724285_0.3176095866814662: 445.550048828125 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763142724286_0.07361888539685801: 518.35400390625 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ Auto-connecting to OneDrive after login...
+ Initiating Microsoft login with config: [object Object]
+ Redirecting to Microsoft authentication: https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/oauth2/v2.0/authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=n5zvgg7tqif&access_type=offline&prompt=consent&code_challenge=0lyzZnyXeY4OQKI9bbS2qHt9j9CHLc6cw5kDoL-t4RQ&code_challenge_method=S256
+ User signed in, clearing settings cache and reloading
+ Loading settings from database...
+ Authenticated user found, fetching from database: 833b83dc-30ef-4df5-ad56-51979811a728
+ Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+(index):1 Refused to display 'https://login.microsoftonline.com/' in a frame because it set 'X-Frame-Options' to 'deny'.
