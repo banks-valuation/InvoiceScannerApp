@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from './components/AuthProvider';
 import { InvoiceList } from './components/InvoiceList';
 import { InvoiceForm } from './components/InvoiceForm';
@@ -30,11 +30,6 @@ function App() {
 
   const handleShowSettings = () => {
     setCurrentView('settings');
-  };
-
-  const handleCancelAdd = () => {
-    setEditingInvoice(null);
-    setCurrentView('list');
   };
 
   const handleBackToList = () => {

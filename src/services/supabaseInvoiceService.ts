@@ -92,8 +92,6 @@ export class SupabaseInvoiceService {
     }
   }
 
-  static async updateInvoice(id: string, formData: InvoiceFormData): Promise<Invoice> {
-  }
   static async updateInvoice(id: string, formData: InvoiceFormData, userId: string): Promise<Invoice> {
     try {
       // Get existing invoice to check for file changes
@@ -152,8 +150,6 @@ export class SupabaseInvoiceService {
     }
   }
 
-  static async deleteInvoice(id: string): Promise<void> {
-  }
   static async deleteInvoice(id: string, userId: string): Promise<void> {
     try {
       // Get invoice to access file URL for deletion
