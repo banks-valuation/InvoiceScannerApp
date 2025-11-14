@@ -1,0 +1,244 @@
+Navigated to https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/reprocess?ctx=rQQIARAAtZE_TBNRHMfv9Q_FRm1hInHpQGJifXfX1_vbhKGlrSWCtS2FVgfyeveuPe7aK6-vVHFyI3FQBx3cNDHRToTJOChxZGI0TgwOygIhDIyeg4sDiYPJN7_l-8k331--N4KIFzOzWEMitlQRWqbRgpJqmVBXNQkqhiFakqUpliV1AJ2OxuHJz-Xv12n--csXe1-qvfoY3O8w1h9kBEFPmy2spSVIFFmHkh8AdR0pULJSJjENVbcQgaIIUbc96IlshLTeyOMdmzo8JX3XZrxJNgU8ZB3BwK7bwobzAYADAH4A8C0QK2d9B_0-HrW3yFEgYni9Aemx00B4Y0jow1fBKNFarjVqodZwHLz2p1eb4n6H79oG9QaexXjD6-4GZyVRVjFGMsSm4reVRQNi3X85LelSSkSpFNG1_eATcEGKULRdMuCrBJur1GYk8Q8sn3XdC_maD_3Ffw2CgxA4Cl0Ww5nJyWg8NhNJcOch8CbsD_P-8S55fewU3vblz9Mzj7j9sHCreRcPi95ic720cLuil8o11EZ6QS1vLje6HRePkvm6U6UKSWbnlEzq2QQ4mQDbEe7jpf-56TiaXO7RlTYp5NjCRkOR60haa5bn07JTyznqynylSYvNtuqYayIu7ETB3hXu_OrTd4efTs-2j0tHsZvlJU117jSa3bbAcvfyq1v0Qb7G7NxwSSgtskKSrg8XWMkwK6vG3E6cO_Q1xZ1PJX4B0&sessionid=00201309-e6d8-c172-4ecc-3a0f45140dc5
+Navigated to https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback?code=1.AX0AJapXQGmtDEWphDSUECEemHCvIKjL_f1Hl4RswPT4b_RVAZd9AA.AgABBAIAAABlMNzVhAPUTrARzfQjWPtKAwDs_wUA9P9Fdm9TdHNBcnRpZmFjdHMCAAAAAABY02Ru--gtmkOV2P6W-z_w8al2Tanx3uAFrV9KTnPcFAJ1y42HZZIQMslHNZQRqRuFZ6l3QrKly4qzbSdcALE4PUupMKMlHfQGj_R_2qkczhoAZMY023LZtvZ6PcXIoZtfTSbTUJNdxpLX6wNwbWGEseO7bjZn1K6zozazTlDC6NinST-gEMNxb07dDVSY_vxtttCTlibvfpjdoshJSYGvYP9t1Ul0_bLxsbtHYthV89IWWzTsd8YcuXS1OdAKBkC4EZ6NbeIkZ-x-6R4Qe_SbkVHH8VlAQ5WCZuY1sq92cDC-mlJPwhNAVKnYQ1NrzkUlEIMTN9WtwE2jmgFNGIHK-he7JBlXEll1XAHKFEpiFfSqXk5Uqq7rbU6q9ahPq-NGy95xX0g8eskz77tqUbINJm5PwMgna0rgnkWRxiGDFbzqhObCPkrP0bwOsNNUlIVlroZb2D_NO-Cy3-5-t8NCBlexAlsUSEaKLNHq5u7hm-H5-94Rsv5k5DGcde9xGwEMHTizastkfmaxcZOxsYfrcG8OMHe-nVSDHD33illkbD-UixEoEIFJLBBRZUSCfHYldeCkjDReXyYZ8EeSYwse8XYtYDnOygxcshr9POKxNECgwMsujaiJKTUD7B8Trx27vuGh5uQwxHjjebLIna1d48wy4Pxj1fpxWzay0UJveSrGJ7ZcPzr2vD-SLtMiz0HeYWiETl9_3pUHzIqalbHHD0MSflfyssWo-Q6Oqm7EgmXUFF1CwJ5gTpeZhA2I8Hr7_oU9PQNKmY8qYwk2btgxJx7NFWnfIbK-eWhFqXBysHygph9zqZKdMBHExX_eLOs15RQFRBJ-EwdVNfWh7lkBKyQNtf0cET4Ne-LPa81BV75Zup4aU9VeO1dgD97VBUTEi7MaWOMfZ9oKoC-77eULDK5hN76kejKeidcJVpYipo4&state=e8blfwb2bu&session_state=00201309-e6d8-c172-4ecc-3a0f45140dc5
+VM30:4 Supabase configuration: {url: 'https://xgowjdlogoee...', key: 'eyJhbGciOiJIUzI1NiIs...'}
+authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:22 Microsoft redirect URI: https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback
+VM31:6986 User signed in, clearing settings cache and reloading
+VM36:16 Loading settings from database...
+VM36:52 Authenticated user found, fetching from database: 833b83dc-30ef-4df5-ad56-51979811a728
+tbremapper.js:31 AuthCallback: Starting callback handling
+tbremapper.js:32 Current URL: https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback?code=1.AX0AJapXQGmtDEWphDSUECEemHCvIKjL_f1Hl4RswPT4b_RVAZd9AA.AgABBAIAAABlMNzVhAPUTrARzfQjWPtKAwDs_wUA9P9Fdm9TdHNBcnRpZmFjdHMCAAAAAABY02Ru--gtmkOV2P6W-z_w8al2Tanx3uAFrV9KTnPcFAJ1y42HZZIQMslHNZQRqRuFZ6l3QrKly4qzbSdcALE4PUupMKMlHfQGj_R_2qkczhoAZMY023LZtvZ6PcXIoZtfTSbTUJNdxpLX6wNwbWGEseO7bjZn1K6zozazTlDC6NinST-gEMNxb07dDVSY_vxtttCTlibvfpjdoshJSYGvYP9t1Ul0_bLxsbtHYthV89IWWzTsd8YcuXS1OdAKBkC4EZ6NbeIkZ-x-6R4Qe_SbkVHH8VlAQ5WCZuY1sq92cDC-mlJPwhNAVKnYQ1NrzkUlEIMTN9WtwE2jmgFNGIHK-he7JBlXEll1XAHKFEpiFfSqXk5Uqq7rbU6q9ahPq-NGy95xX0g8eskz77tqUbINJm5PwMgna0rgnkWRxiGDFbzqhObCPkrP0bwOsNNUlIVlroZb2D_NO-Cy3-5-t8NCBlexAlsUSEaKLNHq5u7hm-H5-94Rsv5k5DGcde9xGwEMHTizastkfmaxcZOxsYfrcG8OMHe-nVSDHD33illkbD-UixEoEIFJLBBRZUSCfHYldeCkjDReXyYZ8EeSYwse8XYtYDnOygxcshr9POKxNECgwMsujaiJKTUD7B8Trx27vuGh5uQwxHjjebLIna1d48wy4Pxj1fpxWzay0UJveSrGJ7ZcPzr2vD-SLtMiz0HeYWiETl9_3pUHzIqalbHHD0MSflfyssWo-Q6Oqm7EgmXUFF1CwJ5gTpeZhA2I8Hr7_oU9PQNKmY8qYwk2btgxJx7NFWnfIbK-eWhFqXBysHygph9zqZKdMBHExX_eLOs15RQFRBJ-EwdVNfWh7lkBKyQNtf0cET4Ne-LPa81BV75Zup4aU9VeO1dgD97VBUTEi7MaWOMfZ9oKoC-77eULDK5hN76kejKeidcJVpYipo4&state=e8blfwb2bu&session_state=00201309-e6d8-c172-4ecc-3a0f45140dc5#
+tbremapper.js:39 URL params: {code: 'present', accessToken: 'missing', error: null, errorDescription: null}
+tbremapper.js:63 Processing authorization code...
+tbremapper.js:64 Processing authorization code flow callback
+installHook.js:1 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. Error Component Stack
+    at BrowserRouter (authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:5247:5)
+    at AuthProvider (jquery-3.3.1.min.js:33:32)
+overrideMethod @ installHook.js:1
+warnOnce @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4393
+logDeprecation @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4396
+logV6DeprecationWarnings @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4399
+(anonymous) @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:5271
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. Error Component Stack
+    at BrowserRouter (authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:5247:5)
+    at AuthProvider (jquery-3.3.1.min.js:33:32)
+overrideMethod @ installHook.js:1
+warnOnce @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4393
+logDeprecation @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4396
+logV6DeprecationWarnings @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:4402
+(anonymous) @ authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256:5271
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+tbremapper.js:31 AuthCallback: Starting callback handling
+tbremapper.js:32 Current URL: https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback?code=1.AX0AJapXQGmtDEWphDSUECEemHCvIKjL_f1Hl4RswPT4b_RVAZd9AA.AgABBAIAAABlMNzVhAPUTrARzfQjWPtKAwDs_wUA9P9Fdm9TdHNBcnRpZmFjdHMCAAAAAABY02Ru--gtmkOV2P6W-z_w8al2Tanx3uAFrV9KTnPcFAJ1y42HZZIQMslHNZQRqRuFZ6l3QrKly4qzbSdcALE4PUupMKMlHfQGj_R_2qkczhoAZMY023LZtvZ6PcXIoZtfTSbTUJNdxpLX6wNwbWGEseO7bjZn1K6zozazTlDC6NinST-gEMNxb07dDVSY_vxtttCTlibvfpjdoshJSYGvYP9t1Ul0_bLxsbtHYthV89IWWzTsd8YcuXS1OdAKBkC4EZ6NbeIkZ-x-6R4Qe_SbkVHH8VlAQ5WCZuY1sq92cDC-mlJPwhNAVKnYQ1NrzkUlEIMTN9WtwE2jmgFNGIHK-he7JBlXEll1XAHKFEpiFfSqXk5Uqq7rbU6q9ahPq-NGy95xX0g8eskz77tqUbINJm5PwMgna0rgnkWRxiGDFbzqhObCPkrP0bwOsNNUlIVlroZb2D_NO-Cy3-5-t8NCBlexAlsUSEaKLNHq5u7hm-H5-94Rsv5k5DGcde9xGwEMHTizastkfmaxcZOxsYfrcG8OMHe-nVSDHD33illkbD-UixEoEIFJLBBRZUSCfHYldeCkjDReXyYZ8EeSYwse8XYtYDnOygxcshr9POKxNECgwMsujaiJKTUD7B8Trx27vuGh5uQwxHjjebLIna1d48wy4Pxj1fpxWzay0UJveSrGJ7ZcPzr2vD-SLtMiz0HeYWiETl9_3pUHzIqalbHHD0MSflfyssWo-Q6Oqm7EgmXUFF1CwJ5gTpeZhA2I8Hr7_oU9PQNKmY8qYwk2btgxJx7NFWnfIbK-eWhFqXBysHygph9zqZKdMBHExX_eLOs15RQFRBJ-EwdVNfWh7lkBKyQNtf0cET4Ne-LPa81BV75Zup4aU9VeO1dgD97VBUTEi7MaWOMfZ9oKoC-77eULDK5hN76kejKeidcJVpYipo4&state=e8blfwb2bu&session_state=00201309-e6d8-c172-4ecc-3a0f45140dc5#
+tbremapper.js:39 URL params: {code: 'present', accessToken: 'missing', error: null, errorDescription: null}
+tbremapper.js:63 Processing authorization code...
+tbremapper.js:64 Processing authorization code flow callback
+tbremapper.js:64  POST https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/oauth2/v2.0/token 400 (Bad Request)
+handleAuthorizationCallback @ contentScript.js:84
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+invokePassiveEffectMountInDEV @ fileFetcher.js:18324
+invokeEffectsInDev @ fileFetcher.js:19701
+commitDoubleInvokeEffectsInDEV @ fileFetcher.js:19686
+flushPassiveEffectsImpl @ fileFetcher.js:19503
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Token exchange failed: {"error":"invalid_request","error_description":"AADSTS9002326: Cross-origin token redemption is permitted only for the 'Single-Page Application' client-type. Request origin: 'https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev'. Trace ID: d4733e66-ad61-4862-b551-631f64c39c00 Correlation ID: 93cbaa86-446b-4be2-9864-44b1737d5d8e Timestamp: 2025-11-14 17:57:57Z","error_codes":[9002326],"timestamp":"2025-11-14 17:57:57Z","trace_id":"d4733e66-ad61-4862-b551-631f64c39c00","correlation_id":"93cbaa86-446b-4be2-9864-44b1737d5d8e","error_uri":"https://login.microsoftonline.com/error?code=9002326"}
+overrideMethod @ installHook.js:1
+handleAuthorizationCallback @ contentScript.js:93
+await in handleAuthorizationCallback
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+invokePassiveEffectMountInDEV @ fileFetcher.js:18324
+invokeEffectsInDev @ fileFetcher.js:19701
+commitDoubleInvokeEffectsInDEV @ fileFetcher.js:19686
+flushPassiveEffectsImpl @ fileFetcher.js:19503
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Token exchange error: Error: Token exchange failed: 
+    at MicrosoftService.handleAuthorizationCallback (contentScript.js:94:15)
+    at async handleCallback (tbremapper.js:64:11)
+overrideMethod @ installHook.js:1
+handleAuthorizationCallback @ contentScript.js:118
+await in handleAuthorizationCallback
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+invokePassiveEffectMountInDEV @ fileFetcher.js:18324
+invokeEffectsInDev @ fileFetcher.js:19701
+commitDoubleInvokeEffectsInDEV @ fileFetcher.js:19686
+flushPassiveEffectsImpl @ fileFetcher.js:19503
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Authorization code processing failed: Error: Token exchange failed: 
+    at MicrosoftService.handleAuthorizationCallback (contentScript.js:94:15)
+    at async handleCallback (tbremapper.js:64:11)
+overrideMethod @ installHook.js:1
+handleCallback @ tbremapper.js:76
+await in handleCallback
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+invokePassiveEffectMountInDEV @ fileFetcher.js:18324
+invokeEffectsInDev @ fileFetcher.js:19701
+commitDoubleInvokeEffectsInDEV @ fileFetcher.js:19686
+flushPassiveEffectsImpl @ fileFetcher.js:19503
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+tbremapper.js:64  POST https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/oauth2/v2.0/token 400 (Bad Request)
+handleAuthorizationCallback @ contentScript.js:84
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Token exchange failed: {"error":"invalid_request","error_description":"AADSTS9002326: Cross-origin token redemption is permitted only for the 'Single-Page Application' client-type. Request origin: 'https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev'. Trace ID: 1f9ebc0f-7d3d-4ee9-b1f7-449928bf9000 Correlation ID: 4fb5fad3-4725-499a-8330-d4ef3610ab3a Timestamp: 2025-11-14 17:57:57Z","error_codes":[9002326],"timestamp":"2025-11-14 17:57:57Z","trace_id":"1f9ebc0f-7d3d-4ee9-b1f7-449928bf9000","correlation_id":"4fb5fad3-4725-499a-8330-d4ef3610ab3a","error_uri":"https://login.microsoftonline.com/error?code=9002326"}
+overrideMethod @ installHook.js:1
+handleAuthorizationCallback @ contentScript.js:93
+await in handleAuthorizationCallback
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Token exchange error: Error: Token exchange failed: 
+    at MicrosoftService.handleAuthorizationCallback (contentScript.js:94:15)
+    at async handleCallback (tbremapper.js:64:11)
+overrideMethod @ installHook.js:1
+handleAuthorizationCallback @ contentScript.js:118
+await in handleAuthorizationCallback
+handleCallback @ tbremapper.js:64
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+installHook.js:1 Authorization code processing failed: Error: Token exchange failed: 
+    at MicrosoftService.handleAuthorizationCallback (contentScript.js:94:15)
+    at async handleCallback (tbremapper.js:64:11)
+overrideMethod @ installHook.js:1
+handleCallback @ tbremapper.js:76
+await in handleCallback
+(anonymous) @ tbremapper.js:119
+commitHookEffectListMount @ fileFetcher.js:16915
+commitPassiveMountOnFiber @ fileFetcher.js:18156
+commitPassiveMountEffects_complete @ fileFetcher.js:18129
+commitPassiveMountEffects_begin @ fileFetcher.js:18119
+commitPassiveMountEffects @ fileFetcher.js:18109
+flushPassiveEffectsImpl @ fileFetcher.js:19490
+flushPassiveEffects @ fileFetcher.js:19447
+(anonymous) @ fileFetcher.js:19328
+workLoop @ fileFetcher.js:197
+flushWork @ fileFetcher.js:176
+performWorkUntilDeadline @ fileFetcher.js:384
+VM91:83 Starting to load invoices...
+supabaseInvoiceService.ts:55 Fetching invoices from Supabase...
+supabaseInvoiceService.ts:56 Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+VM91:83 Starting to load invoices...
+supabaseInvoiceService.ts:55 Fetching invoices from Supabase...
+supabaseInvoiceService.ts:56 Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+installHook.js:1 Database query timed out, falling back to localStorage
+overrideMethod @ installHook.js:1
+getSettings @ VM36:59
+await in getSettings
+(anonymous) @ jquery-3.3.1.min.js:71
+(anonymous) @ VM31:6986
+_notifyAllSubscribers @ VM31:6984
+_recoverAndRefresh @ VM31:6927
+await in _recoverAndRefresh
+_initialize @ VM31:5598
+await in _initialize
+(anonymous) @ VM31:5552
+(anonymous) @ VM31:6230
+(anonymous) @ VM31:5347
+jquery-3.3.1.min.js:72 Settings loaded after sign in: {onedrive: {…}, general: {…}}
+VM91:83 Starting to load invoices...
+supabaseInvoiceService.ts:55 Fetching invoices from Supabase...
+supabaseInvoiceService.ts:56 Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+VM91:83 Starting to load invoices...
+supabaseInvoiceService.ts:55 Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+VM91:83 Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+VM91:83 Starting to load invoices...
+ Fetching invoices from Supabase...
+ Supabase URL being used: https://xgowjdlogoeebqmmreyt.s...
+ query_1763143079465_0.9576230203740558: 6095.65185546875 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763143079465_0.19972623968587255: 6179.865966796875 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763143085316_0.4006428475891395: 398.968017578125 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763143085318_0.937169085798796: 472.809814453125 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763143085319_0.7076024098205186: 559.110107421875 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ query_1763143085320_0.6782795150878296: 636.843017578125 ms
+ Successfully fetched invoices: 19
+ Loaded invoices: 19
+ Auto-connecting to OneDrive after login...
+ Initiating Microsoft login with config: {clientId: 'a820af70-fdcb-47fd-9784-6cc0f4f86ff4', tenantId: '4057aa25-ad69-450c-a984-349410211e98', redirectUri: 'https://93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev/auth/callback'}
+ Redirecting to Microsoft authentication: https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/oauth2/v2.0/authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256
+Navigated to https://login.microsoftonline.com/4057aa25-ad69-450c-a984-349410211e98/oauth2/v2.0/authorize?client_id=a820af70-fdcb-47fd-9784-6cc0f4f86ff4&response_type=code&redirect_uri=https%3A%2F%2F93dba834-e659-4978-9926-4f1dedc79f2e-00-2mgsn0tw28nwo.kirk.replit.dev%2Fauth%2Fcallback&scope=https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite+https%3A%2F%2Fgraph.microsoft.com%2FFiles.ReadWrite.All+https%3A%2F%2Fgraph.microsoft.com%2FSites.ReadWrite.All&response_mode=query&state=fozxken46vn&access_type=offline&prompt=consent&code_challenge=mnsxOiZiKuYK8KJgKncUQ2b1qe1pwf1mbnywpAN9j5c&code_challenge_method=S256
