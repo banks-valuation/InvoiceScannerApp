@@ -7,11 +7,12 @@ import { AuthCallback } from './components/AuthCallback';
 import App from './App.tsx';
 import './index.css';
 
-// Configure Microsoft Graph API immediately when app loads
-// Replace with your actual Azure app credentials
+// Configure Microsoft Graph API (Optional - for OneDrive/Excel integration)
+// To enable: Add VITE_AZURE_APP_CLIENT_ID and VITE_AZURE_APP_TENANT_ID to Replit Secrets
+// Get these from Azure Portal > App Registrations
 MicrosoftService.configure({
-  clientId: '9117a1ac-c6b7-4222-8e11-290d5cca0bcc', // Replace with your Azure app Client ID
-  tenantId: '4057aa25-ad69-450c-a984-349410211e98', // Replace with your Azure app Tenant ID
+  clientId: import.meta.env.VITE_AZURE_APP_CLIENT_ID || '',
+  tenantId: import.meta.env.VITE_AZURE_APP_TENANT_ID || '',
   redirectUri: `${window.location.protocol}//${window.location.host}/auth/callback`,
   scopes: [
     'https://graph.microsoft.com/Files.ReadWrite',
