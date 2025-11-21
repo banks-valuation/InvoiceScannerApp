@@ -495,7 +495,7 @@ private static async syncToExcel(invoiceData: any, operation: 'append' | 'update
     await this.ensureExcelTableExists(excelFileId);
 
     const rowData = [
-      invoiceData.sequence_id || 0,
+      invoiceData.id, // Use invoice ID as unique identifier for reliable matching
       invoiceData.customer_name,
       invoiceData.invoice_date,
       invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category,
@@ -620,21 +620,14 @@ private static async syncToExcel(invoiceData: any, operation: 'append' | 'update
       const tableData = await tableResponse.json();
       const rows = tableData.value;
 
-      // Find row that matches this invoice (by customer name, date, amount, and description)
+      // Find row that matches this invoice by invoice ID (guaranteed unique match)
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const values = row.values[0]; // First (and only) row of values
         
-        // Match by sequence_id (most reliable) or fallback to detailed matching
-        const sequenceIdMatch = invoiceData.sequence_id && values[0] === invoiceData.sequence_id;
-        const detailedMatch = !invoiceData.sequence_id && 
-          values[1] === invoiceData.customer_name && 
-          values[2] === invoiceData.invoice_date && 
-          parseFloat(values[4]) === invoiceData.invoice_amount &&
-          values[3] === (invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category);
-        
-        if (sequenceIdMatch || detailedMatch) {
-          console.log('Found existing row at index:', i);
+        // Match by invoice ID (most reliable unique identifier)
+        if (values[0] === invoiceData.id) {
+          console.log('Found existing row by invoice ID at index:', i);
           return true;
         }
       }
@@ -667,23 +660,16 @@ private static async syncToExcel(invoiceData: any, operation: 'append' | 'update
       const tableData = await tableResponse.json();
       const rows = tableData.value;
 
-      // Find row that matches this invoice (by customer name, date, and amount - more precise matching)
+      // Find row that matches this invoice by invoice ID (guaranteed unique match)
       let matchingRowIndex = -1;
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const values = row.values[0]; // First (and only) row of values
         
-        // Match by sequence_id (most reliable) or fallback to detailed matching
-        const sequenceIdMatch = invoiceData.sequence_id && values[0] === invoiceData.sequence_id;
-        const detailedMatch = !invoiceData.sequence_id && 
-          values[1] === invoiceData.customer_name && 
-          values[2] === invoiceData.invoice_date && 
-          parseFloat(values[4]) === invoiceData.invoice_amount &&
-          values[3] === (invoiceData.description_category === 'Other' ? invoiceData.description_other : invoiceData.description_category);
-        
-        if (sequenceIdMatch || detailedMatch) {
+        // Match by invoice ID (most reliable unique identifier)
+        if (values[0] === invoiceData.id) {
           matchingRowIndex = i;
-          console.log('Found matching row at index:', i);
+          console.log('Found matching row by invoice ID at index:', i);
           break;
         }
       }
